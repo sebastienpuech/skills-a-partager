@@ -282,7 +282,7 @@ def grade_citations(case_id: str, expected: dict, report: dict) -> dict:
     return result
 
 
-def run_case(case_dir: Path, mode: str) -> dict:
+def run_case(case_dir: Path, mode: str, ablate: str | None = None) -> dict:
     expected = parse_json_tolerant((case_dir / "expected.json").read_text(encoding="utf-8"))
     case_id = expected.get("case_id", case_dir.name)
 
@@ -304,6 +304,12 @@ def run_case(case_dir: Path, mode: str) -> dict:
     except (FileNotFoundError, KeyError) as e:
         return {"case_id": case_id, "pass": False, "error": "MISSING_RECORDED", "trace": str(e)}
 
+    # Ablation (passe H8) : vider la sortie de l'agent = simuler son absence. Une
+    # sortie {} fait échouer les should-fire qui en dépendent mais laisse passer les
+    # should-not-fire (vacuité) — sémantique correcte pour mesurer sa contribution.
+    if ablate and ablate in outputs:
+        outputs[ablate] = {}
+
     sources = load_sources(case_dir)
     if gradable_citations:
         report = verify_build_report(sources, outputs)
@@ -311,14 +317,15 @@ def run_case(case_dir: Path, mode: str) -> dict:
     return grade(case_id, expected, outputs, sources)
 
 
-def build_report(cases: list[Path], mode: str, suite: str, sample: int | None) -> dict:
+def build_report(cases: list[Path], mode: str, suite: str, sample: int | None,
+                 ablate: str | None = None) -> dict:
     graded, skipped = [], []
     processed = cases
     if mode == "live" and sample is not None:
         processed = cases[:sample]  # budget (HARN-004)
 
     for case_dir in processed:
-        r = run_case(case_dir, mode)
+        r = run_case(case_dir, mode, ablate=ablate)
         (skipped if r.get("skipped") else graded).append(r)
 
     total = len(graded)
@@ -358,6 +365,7 @@ def main() -> int:
     ap.add_argument("--suite", default="capability", choices=["capability", "regression"])
     ap.add_argument("--sample", type=int, default=LIVE_SAMPLE_DEFAULT, help="cap de cas en --live")
     ap.add_argument("--full", action="store_true", help="--live sans cap d'échantillon")
+    ap.add_argument("--ablate", default=None, help="passe H8 : vide la sortie de cet agent (mesure sa contribution)")
     ap.add_argument("--out", default=None, help="chemin du selfeval_report.json (défaut: <dir>/selfeval_report.json)")
     args = ap.parse_args()
 
@@ -369,7 +377,9 @@ def main() -> int:
         print(json.dumps({"error": "NO_CASES", "dir": args.dir, "case": args.case}, ensure_ascii=False))
         return 1
 
-    report = build_report(cases, run_mode, args.suite, sample)
+    report = build_report(cases, run_mode, args.suite, sample, ablate=args.ablate)
+    if args.ablate:
+        report["ablated_agent"] = args.ablate
 
     out_path = Path(args.out) if args.out else Path(args.dir) / "selfeval_report.json"
     out_path.parent.mkdir(parents=True, exist_ok=True)
