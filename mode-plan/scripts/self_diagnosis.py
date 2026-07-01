@@ -19,8 +19,12 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
+
+SCRIPTS_DIR = Path(__file__).resolve().parent
+SKILL_ROOT = SCRIPTS_DIR.parent
 
 
 def err(msg):
@@ -317,7 +321,35 @@ def check_handoff_spec(project_dir):
     return fails
 
 
-def run_all_checks(project_dir, type_, memory, harness="off", autoimprove="off", handoff="off"):
+def check_selfeval(project_dir):
+    """C13 (v4.0, gated by --selfeval=on): le self-golden-set du SKILL existe et
+    tourne, et le grader-of-graders passe. Porte sur le skill lui-même (SKILL_ROOT),
+    pas sur project_dir. Cf. archi §5.
+    """
+    fails = []
+    selfeval_dir = SKILL_ROOT / "evals" / "selfeval"
+    if not selfeval_dir.is_dir() or not any(selfeval_dir.glob("S*/expected.json")):
+        return ["C13: evals/selfeval/ absent ou vide (self-golden-set manquant). "
+                "Voir mode-plan v4.0 Session 1."]
+    # sys.executable (jamais 'python3') pour robustesse Windows.
+    se = SCRIPTS_DIR / "self_eval_debate.py"
+    me = SCRIPTS_DIR / "_meta_eval.py"
+    try:
+        r1 = subprocess.run([sys.executable, str(se), "--replay"],
+                            capture_output=True, text=True, encoding="utf-8")
+        if r1.returncode != 0:
+            fails.append(f"C13: self_eval_debate.py --replay a échoué (exit {r1.returncode})")
+        r2 = subprocess.run([sys.executable, str(me)],
+                            capture_output=True, text=True, encoding="utf-8")
+        if r2.returncode != 0:
+            fails.append(f"C13: _meta_eval.py (grader-of-graders) a échoué (exit {r2.returncode})")
+    except OSError as e:
+        fails.append(f"C13: impossible de lancer le self-golden-set: {e}")
+    return fails
+
+
+def run_all_checks(project_dir, type_, memory, harness="off", autoimprove="off",
+                   handoff="off", selfeval="off"):
     """Run all circuit-breakers, return structured report."""
     all_fails = []
     all_fails.extend(check_files_exist(project_dir))
@@ -340,6 +372,9 @@ def run_all_checks(project_dir, type_, memory, harness="off", autoimprove="off",
         checks_run += 1
     if handoff == "on":
         all_fails.extend(check_handoff_spec(project_dir))
+        checks_run += 1
+    if selfeval == "on":
+        all_fails.extend(check_selfeval(project_dir))
         checks_run += 1
 
     return {
@@ -369,13 +404,18 @@ def main():
         "--handoff", choices=["on", "off"], default="off",
         help="v3.6: also run C12 repo-handoff-spec check (CLAUDE.md/AGENTS.md)"
     )
+    ap.add_argument(
+        "--selfeval", choices=["on", "off"], default="off",
+        help="v4.0: also run C13 self-golden-set check (replay + grader-of-graders)"
+    )
     args = ap.parse_args()
 
     if not args.project_dir.is_dir():
         err({"error": "project_dir not a directory: " + str(args.project_dir)})
         return 2
 
-    report = run_all_checks(args.project_dir, args.type, args.memory, args.harness, args.autoimprove, args.handoff)
+    report = run_all_checks(args.project_dir, args.type, args.memory, args.harness,
+                            args.autoimprove, args.handoff, args.selfeval)
     print(json.dumps(report, indent=2, ensure_ascii=False))
     return 0 if report["status"] == "PASS" else 1
 

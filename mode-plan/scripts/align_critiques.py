@@ -27,6 +27,9 @@ import json
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _normalize import norm  # noqa: E402  (source unique de normalisation, v4.0)
+
 
 def load_critic(path: Path) -> dict:
     """Load one critic output, tolerant to wrapping markdown fences."""
@@ -46,15 +49,19 @@ def load_critic(path: Path) -> dict:
 def detect_duplicates(critiques: list[dict]) -> list[tuple[int, int]]:
     """
     Detect critique pairs that target the same (fichier, section).
+    v4.0 (archi §2.6) : comparaison via `norm()` sur fichier ET section pour
+    rattraper les quasi-doublons ('Garde-fous' vs 'garde fous', accents, casse,
+    ponctuation terminale). C'est un sur-ensemble de l'égalité exacte.
     Returns list of (idx_a, idx_b) pairs to flag for the Juge.
     """
     pairs = []
+    keys = [
+        (norm(c.get("fichier", "")), norm(c.get("section", "")))
+        for c in critiques
+    ]
     for i in range(len(critiques)):
         for j in range(i + 1, len(critiques)):
-            if (
-                critiques[i].get("fichier") == critiques[j].get("fichier")
-                and critiques[i].get("section") == critiques[j].get("section")
-            ):
+            if keys[i] == keys[j]:
                 pairs.append((i, j))
     return pairs
 

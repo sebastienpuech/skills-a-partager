@@ -146,10 +146,19 @@ def main():
     for n, path in pairs:
         try:
             rounds.append(load_round(path))
-        except (json.JSONDecodeError, KeyError) as e:
-            print(json.dumps({"error": f"failed to load {path.name}: {e}"}),
-                  file=sys.stderr)
-            return 2
+        except (json.JSONDecodeError, KeyError, ValueError, TypeError) as e:
+            # v4.0 (archi §2.6) : un verdict.json malformé ne doit PAS crasher la
+            # boucle — on retourne une décision ERROR explicite (mode safe, sortie
+            # de boucle propre côté SKILL, cf. Étape 3.7). Exit 0 : la décision est
+            # dans stdout, comme les autres verdicts.
+            decision = {
+                "decision": "ERROR",
+                "reason": f"failed to load {path.name}: {e}",
+                "malformed_file": path.name,
+            }
+            print(json.dumps({"decision": decision, "history": []},
+                             indent=2, ensure_ascii=False))
+            return 0
 
     decision = decide(rounds, args.max_iterations, args.threshold, args.plateau_delta)
     history = [{"round": i + 1, **r} for i, r in enumerate(rounds)]
