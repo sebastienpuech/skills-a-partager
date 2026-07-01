@@ -85,6 +85,7 @@ de travail inutile).
       "passage_cite": "<extrait du plan, ou 'aucune section harnais sur <Hx>'>",
       "critique": "<le trou de harnais, factuel, 2-4 phrases, référence le point Hx>",
       "gravite": "CRITIQUE" | "MAJEUR" | "MINEUR",
+      "hook": "H1" | "H2" | "H3" | "H4" | "H5" | "H6" | "H7" | "H8" | null,
       "patch_propose": "<contenu markdown à append, prêt à coller — ex. une section golden set + assertions, ou un budget de contexte>"
     }
   ]
@@ -100,6 +101,8 @@ de travail inutile).
 ## Règles
 
 - Max 6 critiques (priorise H1/H2, puis H3/H4).
+- Le champ "hook" est OBLIGATOIRE et porte le point harnais visé (H1…H8) ; il rend
+  la critique instrumentable par le self-golden-set (mode-plan v4.0, SIM-003).
 - TOUJOURS citer un passage exact OU marquer explicitement l'absence (section: "ABSENTE")
   — sans ça le Défenseur ne peut pas vérifier.
 - Le "patch_propose" doit être une section actionnable prête à coller (un golden set

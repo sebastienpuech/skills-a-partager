@@ -1,0 +1,26 @@
+{
+  "_provenance": {
+    "agent_file": "references/adversarial/juge.md",
+    "agent_sha256": "057345caab75beec4e4c72c7f0dda9406777b234a0fedf8641587977abe8d66c",
+    "recorded_at": "2026-07-01"
+  },
+  "output": {
+    "verdicts": [
+      {
+        "critique_id": "HARN-001",
+        "verdict": "CONFIRMÉE",
+        "raisonnement": "Vérifié dans spec_produit.md : aucune section signal de succès / golden set. La critique H1 tient, le plan est aveugle sur son propre succès.",
+        "passage_verifie": "# (AUCUNE section golden set / signal de succès — trou H1 planté)",
+        "patch_final": "## Signal de succès (golden set)\n- 3 payloads CI (pass / fail / malformé) -> message attendu asserté."
+      }
+    ],
+    "statistiques": {
+      "total": 1,
+      "confirmees": 1,
+      "rejetees": 0,
+      "partielles": 0,
+      "score_convergence": 8.0
+    },
+    "verdict_global": "patch_required"
+  }
+}

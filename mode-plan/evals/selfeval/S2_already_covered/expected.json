@@ -1,0 +1,16 @@
+{
+  "case_id": "S2_already_covered",
+  "type_projet": "skill",
+  "agents_requis": ["critic-harnais", "defenseur"],
+  "expected_verdicts": {},
+  "should_not_fire": [
+    {"agent": "critic-harnais", "fichier": "spec_produit.md", "section": "Signal de succès"}
+  ],
+  "deferred_assertions": [
+    {
+      "agent": "defenseur",
+      "assert": "verdict_defense == TROUVÉ ET citation ancrée (verify_citations)",
+      "wired_in": "Session 2 — verify_citations gère l'ancrage (spec §10bis, HARN-003)"
+    }
+  ]
+}

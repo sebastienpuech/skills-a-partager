@@ -1,0 +1,23 @@
+{
+  "_provenance": {
+    "agent_file": "references/adversarial/critic-simulateur.md",
+    "agent_sha256": "4aadea8f219de57eb70aba047cd6abedfb95c1e011b03e77af66846dff87bbcf",
+    "recorded_at": "2026-07-01"
+  },
+  "output": {
+    "angle": "simulateur",
+    "score_local": 6,
+    "critiques": [
+      {
+        "id": "SIM-090",
+        "fichier": "archi.md",
+        "section": "Composants",
+        "passage_cite": "cache LRU de 500 entrées avec éviction probabiliste",
+        "critique": "Citation inventée : ce passage n'existe nulle part dans archi.md. verify_citations doit la ramener à non_ancre.",
+        "gravite": "MAJEUR",
+        "hook": null,
+        "patch_propose": "## Composants\n- préciser la stratégie de cache si nécessaire."
+      }
+    ]
+  }
+}

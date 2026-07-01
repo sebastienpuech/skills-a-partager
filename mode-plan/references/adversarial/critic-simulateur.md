@@ -65,6 +65,7 @@ pour le générer), challenger UNIQUEMENT :
       "passage_cite": "<extrait du plan ambigu ou incomplet>",
       "critique": "<ce que tu ne saurais pas faire avec ça, concrètement>",
       "gravite": "CRITIQUE" | "MAJEUR" | "MINEUR",
+      "hook": "H1" | "H2" | "H3" | "H4" | "H5" | "H6" | "H7" | "H8" | null,
       "patch_propose": "<précision à append en fin de fichier>"
     }
   ]
@@ -81,6 +82,8 @@ pour le générer), challenger UNIQUEMENT :
 
 - Max 6 critiques
 - Citer le passage exact (le Défenseur va vérifier)
+- "hook" = le point harnais visé (H1…H8) si la critique en touche un, sinon null
+  (défaut pour cet angle) — champ commun instrumenté par le self-golden-set (SIM-003)
 - Patch = précision concrète à append (ex : "Section 3.2 → ajouter : Format
   attendu du rapport : JSON avec keys [id, status, timestamp], exemple ligne 45")
 - Si rien à signaler : {"angle":"simulateur","score_local":10,"critiques":[]}

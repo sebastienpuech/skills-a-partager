@@ -1,0 +1,7 @@
+{
+  "case_id": "S6_best_of_n_gating",
+  "type_projet": "skill",
+  "graded_by": "adoption_gate",
+  "note": "best-of-N sans gain golden (delta < seuil +0.03) -> best_of_n_enabled == false. Vérifieur : lit adoption_gate.json (data_model §5). Câblé en V2 (gate à sec en Session 4).",
+  "expected_gate": {"best_of_n_enabled": false}
+}

@@ -1,0 +1,7 @@
+{
+  "case_id": "S4_projet_1_critere",
+  "type_projet": "app",
+  "graded_by": "fs_refus",
+  "note": "mode-plan doit REFUSER de sur-planifier (<= 1 critère de détection). Vérifieur : aucun dossier outputs/<projet>/ créé (check FS). Câblé quand le gate de refus est instrumenté.",
+  "expected_effet": {"dossier_cree": false}
+}

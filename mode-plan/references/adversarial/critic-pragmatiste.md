@@ -59,6 +59,7 @@ Pour les 3 fichiers du plan, challenger UNIQUEMENT :
       "passage_cite": "<extrait du plan>",
       "critique": "<ce qui est en trop ou prématuré>",
       "gravite": "CRITIQUE" | "MAJEUR" | "MINEUR",
+      "hook": "H1" | "H2" | "H3" | "H4" | "H5" | "H6" | "H7" | "H8" | null,
       "patch_propose": "<suggestion de coupe, formulée en append-only à coller>"
     }
   ]
@@ -75,6 +76,8 @@ Pour les 3 fichiers du plan, challenger UNIQUEMENT :
 
 - Max 6 critiques
 - Citer un passage exact (le Défenseur va vérifier)
+- "hook" = le point harnais visé (H1…H8) si la critique en touche un, sinon null
+  (défaut pour cet angle) — champ commun instrumenté par le self-golden-set (SIM-003)
 - Patch = suggestion de coupe formulée comme un patch append-only
   (ex : "Section 5.2 → marquer cette feature HORS SCOPE V1, déplacer en V2")
 - Si rien à couper : {"angle":"pragmatiste","score_local":10,"critiques":[]}

@@ -61,6 +61,7 @@ Lis tout. Une seule passe.
       "passage_cite": "<extrait du plan à challenger, 1-3 phrases>",
       "critique": "<ce qui ne va pas, factuel, 2-4 phrases>",
       "gravite": "CRITIQUE" | "MAJEUR" | "MINEUR",
+      "hook": "H1" | "H2" | "H3" | "H4" | "H5" | "H6" | "H7" | "H8" | null,
       "patch_propose": "<contenu markdown à append en fin de fichier, prêt à coller>"
     }
   ]
@@ -79,6 +80,8 @@ Lis tout. Une seule passe.
 - TOUJOURS citer un passage exact du plan (champ "passage_cite") — sans
   ça le Défenseur ne peut pas vérifier
 - Le "patch_propose" doit être actionnable, pas une question rhétorique
+- "hook" = le point harnais visé (H1…H8) si la critique en touche un, sinon null
+  (défaut pour cet angle) — champ commun instrumenté par le self-golden-set (SIM-003)
 - Si rien à critiquer : retourner {"angle":"architecte","score_local":10,"critiques":[]}
 - Pas de texte hors du bloc JSON
 ```

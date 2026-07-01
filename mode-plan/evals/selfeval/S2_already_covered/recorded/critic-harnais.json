@@ -1,0 +1,23 @@
+{
+  "_provenance": {
+    "agent_file": "references/adversarial/critic-harnais.md",
+    "agent_sha256": "cdc8b6eedeb6d8a693b7cbc0248fda4b0c71497cb45041d261bead23ecbb037c",
+    "recorded_at": "2026-07-01"
+  },
+  "output": {
+    "angle": "harnais",
+    "score_local": 8,
+    "critiques": [
+      {
+        "id": "HARN-010",
+        "fichier": "archi.md",
+        "section": "ABSENTE",
+        "passage_cite": "aucune section harnais sur H5",
+        "critique": "Pas d'observabilité (H5) : aucune trace conservée en cas d'échec d'envoi. Mineur pour un skill mono-fonction.",
+        "gravite": "MINEUR",
+        "hook": "H5",
+        "patch_propose": "## Observabilité\n- logger l'échec d'envoi avec le build_event.id."
+      }
+    ]
+  }
+}
