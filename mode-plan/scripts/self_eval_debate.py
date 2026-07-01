@@ -31,6 +31,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _normalize import norm  # noqa: E402  (source unique de normalisation)
+from verify_citations import (  # noqa: E402
+    is_anchored,
+    build_report as verify_build_report,
+    load_sources,
+)
 
 # Racine du skill (parent de scripts/) — sert à résoudre references/adversarial/*.md
 SKILL_ROOT = Path(__file__).resolve().parent.parent
@@ -40,12 +45,14 @@ MAX_SPAWNS = 50
 TIMEOUT_TOTAL_S = 900          # 15 min
 LIVE_SAMPLE_DEFAULT = 3        # sans --full, --live se limite à 3 cas échantillon
 
-# Table de dispatch FERMÉE (data_model §1, patch SIM-002) — toute clé hors table = fail explicite.
+# Table de dispatch FERMÉE (data_model §1, patch SIM-002 ; étendue v1.2 Session 2 : trouve_sur_ancre)
+# — toute clé hors table = fail explicite.
 _AGENT_RULE_KEYS = (
     frozenset({"contient_gravite", "sur_hook"}),
     frozenset({"contient_gravite"}),
     frozenset({"au_moins_une"}),
     frozenset({"aucun_trouve_sur"}),
+    frozenset({"trouve_sur_ancre"}),
 )
 
 
@@ -136,7 +143,17 @@ def _pred_aucun_trouve_sur(defenseur_out: dict, critique_id: str) -> bool:
     return True
 
 
-def eval_agent_rule(agent: str, rule: dict, outputs: dict):
+def _pred_trouve_sur_ancre(defenseur_out: dict, critique_id: str, sources: dict) -> bool:
+    """S2 (HARN-003) : ∃ défense TROUVÉ sur la critique C dont la citation est ANCRÉE
+    dans une source réelle (via verify_citations.is_anchored — PUR, pas d'I/O ici)."""
+    for d in defenseur_out.get("defenses", []):
+        verdict_def = d.get("verdict_defense", d.get("verdict"))
+        if d.get("critique_id") == critique_id and verdict_def == "TROUVÉ":
+            return is_anchored(d.get("passage_qui_repond", ""), list(sources.values()))
+    return False
+
+
+def eval_agent_rule(agent: str, rule: dict, outputs: dict, sources: dict):
     """Retourne (ok: bool|None, description). ok=None => erreur de config (clé hors table)."""
     out = outputs.get(agent)
     if out is None:
@@ -154,6 +171,9 @@ def eval_agent_rule(agent: str, rule: dict, outputs: dict):
     if keys == frozenset({"aucun_trouve_sur"}):
         ok = _pred_aucun_trouve_sur(out, rule["aucun_trouve_sur"])
         return ok, f"{agent} : aucun TROUVÉ sur {rule['aucun_trouve_sur']}"
+    if keys == frozenset({"trouve_sur_ancre"}):
+        ok = _pred_trouve_sur_ancre(out, rule["trouve_sur_ancre"], sources)
+        return ok, f"{agent} : TROUVÉ ancré sur {rule['trouve_sur_ancre']}"
     return None, f"CONFIG_ERROR : clés {sorted(keys)} hors table de dispatch fermée"
 
 
@@ -178,11 +198,12 @@ def eval_should_not_fire(snf: dict, outputs: dict):
 # --------------------------------------------------------------------------- #
 #  grade() — PURE, 0 I/O agent (ARCH-R2-003)
 # --------------------------------------------------------------------------- #
-def grade(case_id: str, expected: dict, outputs: dict) -> dict:
+def grade(case_id: str, expected: dict, outputs: dict, sources: dict | None = None) -> dict:
+    sources = sources or {}
     regles = []
     config_error = False
     for agent, rule in expected.get("expected_verdicts", {}).items():
-        ok, desc = eval_agent_rule(agent, rule, outputs)
+        ok, desc = eval_agent_rule(agent, rule, outputs, sources)
         if ok is None:
             config_error = True
             regles.append({"agent": agent, "regle": desc, "ok": False, "config_error": True})
@@ -236,15 +257,43 @@ def discover_cases(root: Path, only: str | None) -> list[Path]:
     return cases
 
 
+def grade_citations(case_id: str, expected: dict, report: dict) -> dict:
+    """Grade un cas graded_by verify_citations (S3) : chaque citation attendue doit
+    tomber (ou non) dans les non_ancrées du citations_report."""
+    non_ancre_norms = {norm(n["passage"]) for n in report.get("non_ancrees", [])}
+    regles = []
+    for agent, spec in expected["expected_citations"].items():
+        passage = spec["passage_cite"]
+        attendu = spec["attendu"]  # "non_ancre" | "ancre"
+        obtenu = "non_ancre" if norm(passage) in non_ancre_norms else "ancre"
+        ok = (obtenu == attendu)
+        regles.append({"agent": agent, "regle": f"citation attendue {attendu}, obtenue {obtenu}", "ok": ok})
+    passed = all(r["ok"] for r in regles)
+    result = {
+        "case_id": case_id, "graded_by": "verify_citations",
+        "should_fire": True, "fired": passed, "pass": passed, "regles": regles,
+        "citations_report": {
+            "taux_ancrage": report.get("taux_ancrage"),
+            "non_ancrees": len(report.get("non_ancrees", [])),
+        },
+    }
+    if not passed:
+        result["trace"] = "; ".join(r["regle"] for r in regles if not r["ok"])
+    return result
+
+
 def run_case(case_dir: Path, mode: str) -> dict:
     expected = parse_json_tolerant((case_dir / "expected.json").read_text(encoding="utf-8"))
     case_id = expected.get("case_id", case_dir.name)
 
-    has_gradable = bool(expected.get("expected_verdicts")) or bool(expected.get("should_not_fire"))
-    if expected.get("graded_by") and not has_gradable:
+    graded_by = expected.get("graded_by")
+    gradable_agents = bool(expected.get("expected_verdicts")) or bool(expected.get("should_not_fire"))
+    gradable_citations = graded_by == "verify_citations" and bool(expected.get("expected_citations"))
+
+    if graded_by and not gradable_agents and not gradable_citations:
         return {
             "case_id": case_id, "skipped": True,
-            "reason": f"graded_by {expected['graded_by']} — hors périmètre self_eval_debate",
+            "reason": f"graded_by {graded_by} — hors périmètre self_eval_debate",
         }
 
     agents = expected.get("agents_requis", [])
@@ -254,7 +303,12 @@ def run_case(case_dir: Path, mode: str) -> dict:
         return {"case_id": case_id, "pass": False, "error": "STALE_FIXTURE", "trace": str(e)}
     except (FileNotFoundError, KeyError) as e:
         return {"case_id": case_id, "pass": False, "error": "MISSING_RECORDED", "trace": str(e)}
-    return grade(case_id, expected, outputs)
+
+    sources = load_sources(case_dir)
+    if gradable_citations:
+        report = verify_build_report(sources, outputs)
+        return grade_citations(case_id, expected, report)
+    return grade(case_id, expected, outputs, sources)
 
 
 def build_report(cases: list[Path], mode: str, suite: str, sample: int | None) -> dict:

@@ -1,3 +1,4 @@
 # Artefacts runtime (générés à chaque run)
 evals/selfeval/selfeval_report.json
 evals/last_run.json
+**/citations_report.json

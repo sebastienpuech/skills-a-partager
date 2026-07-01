@@ -233,6 +233,16 @@ Le Juge **relit la source** (pas la rhétorique des autres agents) et tranche ch
 
 Output : `verdict.json` avec `verdicts[]`, `statistiques`, `verdict_global` ∈ {go, patch_required, major_revision}.
 
+### Étape 3.4bis — Vérification des citations (v4.0, Python, déterministe)
+
+**Post-étape après le Juge, 0 LLM** (mode-plan v4.0, archi §2.2). Le Défenseur et le Juge citent des passages du plan ; rien ne vérifiait qu'ils existent (violait le propre H2 de mode-plan). Lancer :
+
+```bash
+python3 scripts/verify_citations.py --sources <dir_du_plan> --artifacts outputs/<nom_projet>/.mode-plan/
+```
+
+`verify_citations.py` normalise via `_normalize.norm` (source unique) et vérifie que chaque `passage_cite` (critics) / `passage_qui_repond` (defenses) / `passage_verifie` (verdict) est bien ancré dans la source réelle. Sortie `citations_report.json` (data_model §3). **Actions de downgrade** consommées avant d'appliquer les patches (Étape 4.1) : une citation `non_ancre` du Juge rétrograde son verdict (CONFIRMÉE → PARTIELLE) ; une du Défenseur invalide son TROUVÉ (faux négatif ré-ouvert). Sur Windows, invoquer avec `python` (le `python3` du système peut être un stub cassé).
+
 ### Étape 3.5 — Check de convergence (Python, déterministe)
 
 À la fin de chaque round, lancer :
