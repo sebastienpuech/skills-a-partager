@@ -1,0 +1,1 @@
+{"angle":"architecte","score_local":5,"critiques":[{"id":"ARCH-001","fichier":"archi.md","section":"3. Composants","passage_cite":"Foo gère tout","critique":"Fourre-tout","gravite":"MAJEUR","patch_propose":"Split"}]}
