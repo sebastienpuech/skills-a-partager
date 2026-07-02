@@ -36,17 +36,23 @@ from _normalize import norm  # noqa: E402  (source unique de normalisation)
 
 SKILL_ROOT = Path(__file__).resolve().parent.parent
 _ABSENCE_RE = re.compile(r"^\s*aucune?\s+section", re.IGNORECASE)
+# Audit #3 : une citation de moins de N mots s'ancre trivialement (ex. "le" présent
+# dans n'importe quelle source) -> ne prouve aucun ancrage. Un vrai passage cité fait
+# plusieurs mots. En-dessous du seuil, on refuse l'ancrage (anti-ancrage-trivial).
+MIN_ANCHOR_WORDS = 3
 
 
 # --------------------------------------------------------------------------- #
 #  Cœur PUR (aucune I/O) — réutilisable par self_eval_debate.grade()
 # --------------------------------------------------------------------------- #
 def is_anchored(passage: str, source_texts: list[str]) -> bool:
-    """Vrai si le passage (normalisé) est un sous-texte d'AU MOINS une source."""
+    """Vrai si le passage (normalisé) est un sous-texte d'AU MOINS une source ET
+    qu'il est assez substantiel pour prouver un ancrage (>= MIN_ANCHOR_WORDS mots).
+    Un passage trivial ('le', un mot générique) NE s'ancre pas (audit #3)."""
     if not passage:
         return False
     np = norm(passage)
-    if not np:
+    if not np or len(np.split()) < MIN_ANCHOR_WORDS:
         return False
     return any(np in norm(t) for t in source_texts)
 

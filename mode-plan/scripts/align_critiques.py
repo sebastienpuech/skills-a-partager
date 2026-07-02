@@ -101,7 +101,10 @@ def main() -> int:
     score_local_by_angle = {}
     for fname, data in loaded.items():
         angle = data.get("angle", fname.replace("critique_", "").replace(".json", ""))
-        score_local_by_angle[angle] = data.get("score_local")
+        # Audit #5 : un score_local absent OU null (None) ferait planter le calcul
+        # pondéré (None * poids -> TypeError). Défaut neutre 5. (0 reste 0, valide.)
+        _sl = data.get("score_local")
+        score_local_by_angle[angle] = 5 if _sl is None else _sl
         for c in data.get("critiques", []):
             entry = {
                 "id": c.get("id", f"{angle.upper()}-???"),

@@ -135,7 +135,9 @@ def run_case(case, evals_dir, scripts_dir, verbose=False):
         shutil.copytree(fixture_src, tmp_path)
 
         script_path = scripts_dir / case["script"]
-        cmd = ["python3", str(script_path), str(tmp_path)] + case.get("args", [])
+        # v4.1 (audit #1) : sys.executable, JAMAIS "python3" — sur Windows python3 est
+        # un stub cassé (exit 9009) -> tout le harnais rouge + auto_improve regression=0.
+        cmd = [sys.executable, str(script_path), str(tmp_path)] + case.get("args", [])
 
         if verbose:
             print(f"  cmd: {' '.join(cmd)}")

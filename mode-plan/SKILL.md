@@ -465,7 +465,7 @@ Présenter à l'user :
 | `scripts/check_regression.py` | Anti-régression patches | Phase 4.2 |
 | `scripts/self_diagnosis.py` | Circuit-breakers Python (9 checks) | Phase 4.5 |
 | `scripts/run_evals.py` | **(v3.2)** Runner des golden cases | Hors workflow, en CI |
-| `evals/evals.json` | Spec des golden cases (18) | Lu par run_evals.py |
+| `evals/evals.json` | Spec des golden cases (déterministes, CI) | Lu par run_evals.py |
 | `scripts/self_eval_debate.py` · `verify_citations.py` · `_meta_eval.py` · `h8_ablation.py` · `auto_improve.py` · `best_of_n.py` · `ensemble_verifiers.py` · `l3_gate.py` | **(v4.0/v4.1/V2)** self-golden-set + citations + grader-of-graders + ablation H8 + boucle d'auto-amélioration (gate `--check` + revert `--sandbox-apply`) + best-of-N + ensemble + gate L3 | Hors run / CI / nocturne |
 | `references/notes-et-historique.md` · `references/l3.md` | **(v4.1/V2)** notes/portabilité/historique · **phase L3** (opt-in, gate 2-temps anti-hallucination) | À la demande |
 

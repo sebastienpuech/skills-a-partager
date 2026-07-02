@@ -38,6 +38,7 @@ META_DIR = SKILL_ROOT / "_mode-plan-meta"
 PROPOSED_FIXES = META_DIR / "proposed_fixes.md"
 
 PROGRESSIVE_DISCLOSURE_MAX_LINES = 500  # SKILL.md doit rester chargeable (context engineering)
+_FULL_EPS = 1e-9  # tolérance flottante pour "score == 1.0" (audit #4)
 
 
 def _run(cmd: list[str]) -> subprocess.CompletedProcess:
@@ -78,10 +79,13 @@ def gate(baseline: dict, candidate: dict) -> tuple[bool, str]:
     if candidate["capability"] <= baseline["capability"]:
         return False, (f"capability {candidate['capability']} <= baseline "
                        f"{baseline['capability']} (pas d'amélioration) -> NO_COMMIT")
-    if candidate["regression"] != 1.0:
-        return False, f"regression {candidate['regression']} != 1.0 -> REVERT"
-    if candidate["holdout"] != 1.0:
-        return False, f"holdout {candidate['holdout']} != 1.0 (généralisation cassée) -> REVERT"
+    # Audit #4 : tolérance flottante. Les scores sont des ratios passed/total (1.0 exact
+    # quand plein), mais un grader pourrait émettre 0.9999998 -> faux REVERT. Un vrai
+    # échec de cas vaut >= 1/total (>> 1e-9), donc l'epsilon ne masque aucune régression.
+    if candidate["regression"] < 1.0 - _FULL_EPS:
+        return False, f"regression {candidate['regression']} < 1.0 -> REVERT"
+    if candidate["holdout"] < 1.0 - _FULL_EPS:
+        return False, f"holdout {candidate['holdout']} < 1.0 (généralisation cassée) -> REVERT"
     return True, "capability↑ ET regression==1.0 ET holdout==1.0 -> COMMIT"
 
 
@@ -114,14 +118,22 @@ def _git(*args) -> subprocess.CompletedProcess:
 
 def sandboxed_apply(apply_cmd: str) -> dict:
     """Enforcement anti-régression : applique un candidat dans un bac à sable git,
-    re-mesure, et REVERT (git checkout) si le gate échoue → l'arbre reste propre,
-    aucun patch régressif ne survit. Exige un arbre propre au départ.
+    re-mesure, et REVERT si le gate échoue → l'arbre reste propre, aucun patch
+    régressif ne survit. Exige un arbre propre au départ.
 
-    apply_cmd = commande shell qui mute l'arbre (en prod : l'écriture du patch par
-    skill-auto-improver). Ne committe jamais : si le gate passe, laisse les
-    changements pour revue/commit humain ; sinon, les annule.
+    Périmètre = `mode-plan/` uniquement (audit #2) : le check de propreté ET le revert
+    sont scopés à `-- .` depuis SKILL_ROOT, cohérents entre eux (le dépôt <depot-prive>
+    peut avoir d'autres modifs légitimes ailleurs). Le REVERT annule les fichiers
+    SUIVIS (`git checkout`) ET supprime les fichiers NON-SUIVIS créés par le patch
+    (`git clean -fd`, non-ignorés) — sinon un patch qui *ajoute* un fichier régressif
+    survivrait au revert.
+
+    ⚠ SÉCURITÉ (audit #6) : `apply_cmd` est exécuté via `shell=True` — c'est une
+    ENTRÉE DE CONFIANCE (le patch écrit par skill-auto-improver), PAS une isolation
+    d'exécution. Le bac à sable ne protège que l'arbre git, pas le système. Ne jamais
+    passer ici une chaîne d'origine non vérifiée. Ne committe jamais.
     """
-    dirty = _git("status", "--porcelain").stdout.strip()
+    dirty = _git("status", "--porcelain", "--", ".").stdout.strip()
     if dirty:
         return {"error": "SANDBOX_REQUIERT_ARBRE_PROPRE", "dirty": dirty.splitlines()[:10]}
     baseline = measure()
@@ -135,8 +147,9 @@ def sandboxed_apply(apply_cmd: str) -> dict:
     if commit:
         result["action"] = "KEEP (gate OK) — changements laissés pour revue/commit humain"
     else:
-        _git("checkout", "--", ".")               # revert des fichiers suivis
-        after = _git("status", "--porcelain").stdout.strip()
+        _git("checkout", "--", ".")               # annule les fichiers suivis
+        _git("clean", "-fdq", "--", ".")          # supprime les non-suivis créés par le patch
+        after = _git("status", "--porcelain", "--", ".").stdout.strip()
         result["action"] = "REVERT (gate KO) — patch annulé"
         result["arbre_propre_apres_revert"] = (after == "")
         if after:
@@ -213,8 +226,8 @@ def main() -> int:
     ap.add_argument("--check", action="store_true",
                     help="test anti-régression : le gate bloque-t-il chaque type de régression ? (CI)")
     ap.add_argument("--sandbox-apply", metavar="CMD", default=None,
-                    help="applique un candidat (commande shell) en bac à sable git, mesure, "
-                         "revert si le gate échoue (enforcement anti-régression)")
+                    help="applique un candidat (commande shell DE CONFIANCE, shell=True) en bac à "
+                         "sable git, mesure, revert+clean si le gate échoue. N'isole PAS l'exécution.")
     ap.add_argument("root", nargs="?", default=None, help="positionnel toléré (run_evals)")
     args = ap.parse_args()
 
