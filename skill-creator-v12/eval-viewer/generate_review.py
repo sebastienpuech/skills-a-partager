@@ -276,7 +276,9 @@ def generate_html(
     if benchmark:
         embedded["benchmark"] = benchmark
 
-    data_json = json.dumps(embedded)
+    # Échapper "</" pour qu'un output contenant "</script>" ne puisse pas
+    # fermer le bloc script et injecter du HTML dans la page de review
+    data_json = json.dumps(embedded).replace("</", "<\\/")
 
     return template.replace("/*__EMBEDDED_DATA__*/", f"const EMBEDDED_DATA = {data_json};")
 

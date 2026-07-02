@@ -96,6 +96,10 @@ def package_skill(skill_path, output_dir=None):
             for file_path in skill_path.rglob('*'):
                 if not file_path.is_file():
                     continue
+                # Ne jamais zipper l'archive en cours d'écriture dans elle-même
+                # (cas où output_path est à l'intérieur du dossier du skill)
+                if file_path.resolve() == skill_filename.resolve():
+                    continue
                 arcname = file_path.relative_to(skill_path.parent)
                 if should_exclude(arcname):
                     print(f"  Skipped: {arcname}")
