@@ -40,6 +40,7 @@ Critères binaires :
 - **Mode `iterate_existing` requiert fichiers en bon format.** Sections numérotées, headers cohérents. Format custom → critics hallucinent.
 - **Append-only patches font grossir les fichiers.** Au-delà de v1.5 sur un même fichier, proposer une consolidation vN.0.
 - **Sub-agent custom = pas invocable par nom en Cowork.** Toujours passer le contenu du fichier `.md` comme prompt au `subagent_type: general-purpose`.
+- **100% Opus.** Tous les sous-agents (critics, Défenseur, Juge, Observateur, drafters best-of-N) héritent du modèle de session — AUCUN downgrade Haiku/Sonnet. Sous forfait Max (Agent SDK, tarif à plat) un modèle « cheap » n'a aucun intérêt et dégrade la justesse (mesuré : V2-2, ensemble Haiku −0,125). Ne jamais coder de `model:` non-Opus.
 - **3 critics parallèles peuvent converger sur le même patch** (mode collapse cross-agents) — c'est OK, le script `align_critiques.py` détecte les doublons et le Défenseur les traite une seule fois.
 - **Si tu invoques un MCP tool : nom fully qualified obligatoire.** `server_name:tool_name`. Sans namespace → "tool not found" silencieux.
 - **Pattern injection (Phase 2) est optionnelle** — si `outputs/_mode-plan-meta/patterns-from-real-plans.md` n'existe pas, on dégrade vers le draft from template, sans bloquer.

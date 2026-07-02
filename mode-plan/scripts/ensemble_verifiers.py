@@ -176,7 +176,7 @@ def run_check() -> dict:
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8")
     sys.stderr.reconfigure(encoding="utf-8")
-    ap = argparse.ArgumentParser(description="ensemble de vérifieurs cheap (V2, opt-in)")
+    ap = argparse.ArgumentParser(description="ensemble de vérifieurs Opus (auto-cohérence, V2, opt-in)")
     ap.add_argument("--ensemble", choices=["on", "off"], default="off")
     ap.add_argument("--check", action="store_true", help="mécanisme d'agrégation (CI)")
     ap.add_argument("--measure", action="store_true")
