@@ -108,11 +108,13 @@ def run_check(root: Path) -> dict:
     """Mécanisme (CI) : best-of-N choisit-il bien le candidat au plus haut score
     rubrique, égal à `best_candidate` déclaré dans expected.json ?"""
     results = []
+    skipped = []
     for case_dir in discover_bn_cases(root):
         expected = _parse_json((case_dir / "expected.json").read_text(encoding="utf-8"))
         cands = load_candidates(case_dir, "replay")
         if not cands:
-            results.append({"case": case_dir.name, "ok": False, "raison": "aucun candidat (pool)"})
+            # Cas mesuré uniquement en live (pas de pool d'auteur) -> hors mécanisme.
+            skipped.append(case_dir.name)
             continue
         res = best_of_n(cands)
         picked = res["best"]["name"]
@@ -124,7 +126,7 @@ def run_check(root: Path) -> dict:
         results.append({"case": case_dir.name, "picked": picked, "expected": expect,
                         "scores": {c["name"]: c["score"] for c in res["scored"]}, "ok": ok})
     green = bool(results) and all(r["ok"] for r in results)
-    return {"mode": "check", "green": green, "results": results}
+    return {"mode": "check", "green": green, "results": results, "skipped_live_only": skipped}
 
 
 def run_measure(root: Path, mode: str) -> dict:
@@ -154,6 +156,21 @@ def run_measure(root: Path, mode: str) -> dict:
         "mode": mode, "n_cas": len(graded),
         "baseline_score": baseline_score, "candidate_score": candidate_score,
         "gain_oriente": gain_oriente, "per_case": per_case,
+    }
+
+
+def run_select(cand_dir: Path) -> dict:
+    """Sélecteur Phase 2 (câblage) : score tous les *.md d'un dossier, retourne le
+    meilleur (chemin + score). Écriture single-threaded en aval (writer-unique)."""
+    cands = [(f.name, f.read_text(encoding="utf-8")) for f in sorted(cand_dir.glob("*.md"))]
+    if not cands:
+        return {"error": "aucun candidat (*.md) dans " + str(cand_dir)}
+    res = best_of_n(cands)
+    return {
+        "selected": res["best"]["name"],
+        "selected_path": str(cand_dir / res["best"]["name"]),
+        "selected_score": res["best"]["score"],
+        "all_scores": {c["name"]: c["score"] for c in res["scored"]},
     }
 
 
@@ -189,6 +206,8 @@ def main() -> int:
     ap.add_argument("--bestofn", choices=["on", "off"], default="off",
                     help="active le module (OFF par défaut = comportement v4.1 strict)")
     ap.add_argument("--check", action="store_true", help="mécanisme : best-of-N choisit le max (CI)")
+    ap.add_argument("--select", metavar="DIR", default=None,
+                    help="câblage Phase 2 : sort le meilleur candidat (*.md) d'un dossier")
     ap.add_argument("--measure", action="store_true", help="mesure baseline/candidate -> gate")
     ap.add_argument("--mode", choices=["replay", "live"], default="replay")
     ap.add_argument("--dir", default=str(SELFEVAL_DIR))
@@ -197,6 +216,11 @@ def main() -> int:
                     help="racine des cas (positionnel, ex. fixture run_evals) ; sinon --dir")
     args = ap.parse_args()
     root = Path(args.root) if args.root else Path(args.dir)
+
+    if args.select:
+        rep = run_select(Path(args.select))
+        print(json.dumps(rep, ensure_ascii=False, indent=2))
+        return 0 if "selected" in rep else 1
 
     if args.check:
         rep = run_check(root)

@@ -152,6 +152,13 @@ Lire `references/templates/app/` (seul type templaté en v3). 4 fichiers à prod
 
 **NE PAS produire `sessions_claude_code.md` à cette étape.**
 
+### Étape 2.4bis — best-of-N sur la section §10bis (v4.0 V2, opt-in `--bestofn=on`, OFF par défaut)
+
+**Adopté** (adoption_gate.json, D1) : sur 8 cas gradués mesurés en live, best-of-N gagne **+0,11** capability (≥ seuil +0,03). Quand `--bestofn=on` : pour la section harnais **§10bis** (l'unité à plus haut signal), générer **N=2 candidats** au lieu d'un seul jet, garder le meilleur.
+- **Writer-unique (archi §4bis)** : les 2 candidats se génèrent **en parallèle** (2 sous-drafters), mais **sélection + écriture finale sérialisées** sur l'agent principal (jamais d'écriture concurrente). Les déposer dans `outputs/<nom_projet>/.mode-plan/bestofn_10bis/cand_{1,2}.md`.
+- **Sélection** : `python3 scripts/best_of_n.py --select <ce_dossier>` → candidat au plus haut score rubrique ; l'agent principal écrit CE candidat dans `spec_produit.md` §10bis.
+- **Coût** : **N=2 seulement**, surcoût ≈ **×2 sur cette seule étape**. `--bestofn` **OFF par défaut** → comportement v4.1 (un seul jet) inchangé.
+
 ### Étape 2.5 — Si type=skill : section Mémoire obligatoire
 
 Si `Q1=skill` ET `Q9 ∈ {complet, issues_only}`, `spec_produit.md` DOIT contenir une section "Mémoire du skill" et `archi.md` DOIT décrire les 3 fichiers de stockage (`memory/interactions.jsonl`, `memory/issues.md`, `memory/proposed_fixes.md`). Spec minimale détaillée dans `references/workflow.md` section "Mémoire du skill".
