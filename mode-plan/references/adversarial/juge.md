@@ -72,7 +72,8 @@ contredite par le plan source, tu rejettes la critique.
     "confirmees": <int>,
     "rejetees": <int>,
     "partielles": <int>,
-    "score_convergence": <0.0-10.0>
+    "score_convergence": <0.0-10.0>,
+    "score_convergence_raw": <float non borné — la formule AVANT le clamp [0,10]>
   },
   "verdict_global": "go" | "patch_required" | "major_revision"
 }
@@ -84,7 +85,12 @@ Départ : 10.0
 - Pour chaque CONFIRMÉE gravite MAJEUR : -1.0
 - Pour chaque CONFIRMÉE gravite MINEUR : -0.3
 - Pour chaque PARTIELLE (toute gravité) : -0.5
-- Bornes : [0, 10]
+
+**Émettre DEUX champs (v4.1)** :
+- `score_convergence_raw` = le résultat de la formule ci-dessus, **NON borné** (peut être négatif, ex. -9.0 sur un plan très troué).
+- `score_convergence` = ce même score **clampé à [0, 10]** (pour l'affichage et le verdict_global).
+
+Pourquoi : `check_convergence.py` calcule le PLATEAU sur le score **brut**. Sans lui, deux rounds saturés à 0 (bruts -9 puis -6,1) afficheraient un delta nul → faux PLATEAU par saturation, alors que le plan s'améliore réellement dans le bas de l'échelle.
 
 ## Calcul du verdict_global
 

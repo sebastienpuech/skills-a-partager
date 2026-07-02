@@ -263,6 +263,21 @@
           "status": "PASS"
         }
       }
+    },
+    {
+      "id": "convergence_plateau_vs_saturation_continues",
+      "script": "check_convergence.py",
+      "fixture_dir": "fixtures/convergence_plateau_vs_saturation",
+      "args": [
+        "--max-iterations=3",
+        "--threshold=8.0"
+      ],
+      "expected": {
+        "exit_code": 0,
+        "json_match": {
+          "decision.decision": "CONTINUE"
+        }
+      }
     }
   ]
 }
