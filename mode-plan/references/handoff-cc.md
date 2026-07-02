@@ -36,6 +36,7 @@ Le handoff devient : « copie le dossier du plan dans ton repo, commit, `cd` + o
 - `archi.md` — composants, couche harnais §4bis
 - `data_model.md` — entités, contrats
 - `sessions_claude_code.md` — ordre des sessions + statut [DONE]
+- `journal.md` — état actuel glissant + log daté (prévu/réalisé/divergence) ; se rejoue, ne se résume pas
 
 ## Discipline harnais (non négociable)
 - Sessions 1-2 : construire le harnais d'éval (golden set + assertions) AVANT les features.

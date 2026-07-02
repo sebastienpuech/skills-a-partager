@@ -373,6 +373,10 @@ En-tête du fichier : **règle de fer consolidée** (Phase 1) + table de référ
 
 Effet : Claude Code charge `CLAUDE.md` automatiquement à chaque session → contexte persistant, versionné, qui survit aux resets. (Pour un repo multi-outils, générer aussi `AGENTS.md`.) La gate `--handoff=on` (C12) bloque la livraison si ce fichier manque.
 
+### Étape 4.3ter — Générer le `journal.md` du projet (v4.0, suivi vivant)
+
+**Toujours** (utile dès qu'un plan est multi-sessions). Générer `outputs/<nom_projet>/journal.md` selon le schéma `data_model.md §4` : un bloc **« État actuel »** glissant réécrit en tête (phase, sessions faites/N, dernier score Debate Room, prochain pas) + un **Log append-only daté** (une entrée par événement : prévu / réalisé / divergence). Ajouter un **pointeur vers `journal.md`** dans le `CLAUDE.md` (section « Plan — à lire »). C'est la mémoire de suivi qui survit aux resets (context-reset over compaction, cf. `references/harnais.md` §avril 2026) : on rejoue l'état depuis le journal, on ne le résume pas.
+
 ### Étape 4.4 — Session CC dédiée à la boucle d'auto-amélioration (si type=skill)
 
 Si type=skill et mémoire ≠ aucune, insérer (Session 2 ou 3) une session dédiée qui câble la **boucle d'auto-amélioration** (cf. `spec_produit.md` §11 + `references/harnais.md`) :

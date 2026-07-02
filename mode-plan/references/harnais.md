@@ -137,3 +137,32 @@ Un plan mode-plan doit donc, quand c'est pertinent, **réutiliser ces briques** 
 - Débat *Don't Build Multi-Agents* (Cognition) vs *multi-agent research system* (Anthropic) — « la tâche choisit l'architecture » : https://news.smol.ai/issues/25-06-13-cognition-vs-anthropic
 - Cognition — *Multi-agents that work* (avr. 2026) — règle du writer unique (writes single-threaded) : https://cognition.ai/blog/multi-agents-working
 - *Agentic Reward Modeling* (arXiv 2502.19328) ; *From Generation to Judgment: LLM-as-a-judge* (arXiv 2411.16594) ; *Lost in Simulation* (arXiv 2601.17087) ; *Holistic Agent Leaderboard* (arXiv 2510.11977) ; *Terminal-Bench* (arXiv 2601.11868).
+
+---
+
+## Ajout avril 2026 (v4.0) — harnais 3-agents & context-resets
+
+> Append (mode-plan v4.0, Session 5). Ne réécrit rien au-dessus ; met la doctrine à la frontière la plus récente.
+
+### Le harnais 3-agents Planner / Generator / Evaluator
+
+L'état de l'art (avr. 2026) converge sur une **séparation des rôles en trois** à l'intérieur d'une boucle, plutôt qu'un fan-out large et indifférencié :
+
+- **Planner** — décompose la tâche, fixe le *signal de succès* (les assertions à satisfaire) AVANT toute génération. Il ne génère pas la solution ; il définit à quoi ressemble « réussi ».
+- **Generator** — produit la solution candidate contre ce signal. Un seul writer (règle du writer unique) ; peut explorer plusieurs pistes en lecture mais consolide en série.
+- **Evaluator** — vérifie la sortie contre les assertions du Planner (grade-the-output, non-gamable), lit les traces des échecs (error-analysis, H5), et renvoie un feedback actionnable au Generator.
+
+Le gain vient de la **frontière nette** entre « définir le succès », « produire », et « juger » — pas du nombre d'agents. Un Evaluator qui partage le contexte du Generator hérite de ses angles morts ; il doit juger sur le signal, pas sur la rhétorique. *(mode-plan v4.0 instancie déjà ce triptyque : la Debate Room = Planner+Generator implicites, `self_eval_debate.py` + `verify_citations.py` + `_meta_eval.py` = Evaluator vérifié.)*
+
+### Context-resets over compaction
+
+Sur une tâche longue, deux stratégies s'opposent pour tenir dans la fenêtre :
+- **Compaction** — résumer l'historique pour le comprimer. Risque : le résumé perd du signal de façon non uniforme (context rot déplacé, pas résolu) et fige des erreurs dans le résumé.
+- **Context-reset** (recommandé avr. 2026) — repartir d'un contexte **propre** en ne re-chargeant que des **artefacts durables et vérifiables** (fichiers du plan, `.mode-plan/*.json`, journal, golden set) via récupération just-in-time. L'état vit sur le disque (mémoire externe), pas dans l'historique de conversation.
+
+Conséquence pour un plan : préférer une **mémoire fichier-résidente rejouable** (ce que fait `_mode-plan-meta/` + `journal.md` + les `recorded/`) à un long historique compacté. Un run raté se **rejoue** depuis les artefacts, il ne se **résume** pas. C'est la même logique que le handoff fichier-résident (`CLAUDE.md`) : le contexte survit aux resets parce qu'il est sur le disque, versionné.
+
+### Sources (avril 2026)
+- Anthropic — *Effective context engineering for AI agents* (context-resets over compaction, just-in-time retrieval).
+- Cognition — *Multi-agents that work* (avr. 2026) — writer unique + rôles Planner/Generator/Evaluator.
+- Chroma — *Context Rot* (la compaction déplace le problème, ne le résout pas).
