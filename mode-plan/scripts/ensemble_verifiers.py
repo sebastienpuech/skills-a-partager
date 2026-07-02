@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""ensemble_verifiers.py — module frontière+ V2 (item 2) : ensemble de vérifieurs cheap.
+"""ensemble_verifiers.py — module frontière+ V2 (item 2) : ensemble de vérifieurs.
 
-Question frontière : 3 vérifieurs CHEAP (Haiku) qui votent à la majorité peuvent-ils
-égaler/battre le Juge unique FORT (Opus) actuel sur la JUSTESSE des verdicts ?
+Contexte forfait Max (Agent SDK, tarif à plat) : PAS de vérifieur "cheap" — Opus/Haiku/
+Sonnet coûtent pareil. La question n'est donc pas l'économie mais l'AUTO-COHÉRENCE :
+3 vérifieurs OPUS qui votent à la majorité battent-ils 1 Juge OPUS sur la JUSTESSE ?
+Le coût de l'ensemble est en latence/tokens ×3 (pas en $).
 
 Opt-in (`--ensemble=on`, OFF par défaut). Adopté seulement si +0.03 de justesse (gate D1,
 objet=ensemble_verifieurs). Mesuré sur des cas de vérification DIFFICILES (evals/ensemble/)
@@ -99,12 +101,12 @@ def run_measure(root: Path, mode: str) -> dict:
         truth = norm_verdict(case["ground_truth"]["verdict"])
         vdir = case_dir / sub
         opus = _load_verdict_file(vdir / "opus_judge.json")
-        haiku = [_load_verdict_file(vdir / f"haiku_{i}.json") for i in (1, 2, 3)]
-        if opus is None or any(h is None for h in haiku):
+        members = [_load_verdict_file(vdir / f"ens_{i}.json") for i in (1, 2, 3)]
+        if opus is None or any(m is None for m in members):
             per_case.append({"case": case_dir.name, "skipped": True,
                              "raison": f"verdicts manquants en mode {mode}"})
             continue
-        ensemble = aggregate(haiku)
+        ensemble = aggregate(members)
         base_ok = (opus == truth)
         cand_ok = (ensemble == truth)
         n += 1
@@ -113,7 +115,7 @@ def run_measure(root: Path, mode: str) -> dict:
         per_case.append({
             "case": case_dir.name, "verite": truth,
             "baseline_opus": opus, "base_ok": base_ok,
-            "haiku": haiku, "ensemble": ensemble, "cand_ok": cand_ok,
+            "membres": members, "ensemble": ensemble, "cand_ok": cand_ok,
         })
     if n == 0:
         return {"mode": mode, "error": "aucun cas mesurable", "per_case": per_case}
@@ -130,24 +132,26 @@ def build_gate(live: dict | None, replay: dict | None) -> dict:
     src = "live" if (live and "gain_oriente" in live) else "replay"
     m = live if src == "live" else replay
     gain = m["gain_oriente"]
-    # Cas coût : justesse ÉGALE (gain 0) mais 3 cheap ≈ 1 fort -> décision coût, PAS le gate.
+    # Sous Max, le coût de l'ensemble = latence/tokens ×3. Gain de justesse nul -> décision
+    # d'efficience (payer ×3 pour rien), PAS le gate capability.
     if gain >= SEUIL_MIN:
-        decision, enabled, note = "activer", True, "l'ensemble cheap est plus juste que le Juge fort"
+        decision, enabled, note = "activer", True, "l'ensemble Opus (auto-cohérence) est plus juste que 1 Juge Opus"
     elif abs(gain) < 1e-9:
-        decision, enabled, note = ("cout_a_decider", False,
-            "justesse ÉGALE : ne PAS auto-adopter sur le gate capability ; "
-            "décision coût séparée (3 cheap ≈ 1 fort ?) à trancher par l'humain")
+        decision, enabled, note = ("efficience_a_decider", False,
+            "justesse ÉGALE : ne PAS auto-adopter ; l'ensemble coûte ×3 en latence/tokens "
+            "pour 0 gain de justesse -> décision d'efficience (à trancher par l'humain)")
     else:
-        decision, enabled, note = "rejeter", False, "l'ensemble cheap est MOINS juste que le Juge fort"
+        decision, enabled, note = "rejeter", False, "l'ensemble Opus n'est pas plus juste que 1 Juge Opus (et coûte ×3)"
     return {
         "decision_type": "D1_activer_module", "objet": "ensemble_verifieurs",
         "baseline_score": m["baseline_score"], "candidate_score": m["candidate_score"],
         "gain_oriente": gain, "seuil_min": SEUIL_MIN,
         "decision": decision, "ensemble_enabled": enabled, "raison": note,
         "decision_source": src, "mesures": {"live": live, "replay": replay},
-        "note_integrite": ("baseline = 1 Juge Opus (fort) ; candidate = 3 vérifieurs Haiku "
-                           "(cheap, vote majoritaire). Vérité-terrain annotée à la main, "
-                           "lecture seule. Décision sur le LIVE."),
+        "note_integrite": ("Forfait Max (tarif à plat via Agent SDK) : pas de vérifieur 'cheap' "
+                           "-> baseline = 1 Juge Opus, candidate = 3 vérifieurs Opus (vote majoritaire "
+                           "= auto-cohérence). Le coût de l'ensemble est en latence/tokens ×3, pas en $. "
+                           "Vérité-terrain annotée à la main, lecture seule. Décision sur le LIVE."),
     }
 
 
