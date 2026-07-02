@@ -122,6 +122,24 @@ def append_audit(date: str, decision: str, baseline: dict, candidate: dict, reas
         f.write(entry)
 
 
+def log_interaction(date: str, report: dict) -> None:
+    """Append 1 ligne métadonnées-only à interactions.jsonl (data_model §9).
+    Aucun contenu brut : uniquement les scores + la décision de la passe."""
+    interactions = META_DIR / "interactions.jsonl"
+    line = {
+        "date": date,
+        "event": "auto_improve_pass",
+        "capability": report["baseline"]["capability"],
+        "regression": report["baseline"]["regression"],
+        "holdout": report["baseline"]["holdout"],
+        "decision": report["decision"],
+        "open_issues": report["open_issues"],
+        "skill_md_lines": report["progressive_disclosure"]["skill_md_lines"],
+    }
+    with interactions.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(line, ensure_ascii=False) + "\n")
+
+
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8")
     sys.stderr.reconfigure(encoding="utf-8")
@@ -131,6 +149,8 @@ def main() -> int:
                     help="mesure + gate, NE COMMIT RIEN (défaut, seul mode en V1)")
     ap.add_argument("--date", default="unknown", help="date pour l'audit trail")
     ap.add_argument("--no-audit", action="store_true", help="ne pas écrire dans proposed_fixes.md")
+    ap.add_argument("--log", action="store_true",
+                    help="append 1 ligne métadonnées à interactions.jsonl (utilisé par le cron hebdo)")
     args = ap.parse_args()
 
     baseline = measure()
@@ -154,6 +174,8 @@ def main() -> int:
 
     if not args.no_audit and PROPOSED_FIXES.is_file():
         append_audit(args.date, decision, baseline, candidate, reason)
+    if args.log and META_DIR.is_dir():
+        log_interaction(args.date, report)
 
     if not pd["ok"]:
         print(f"[auto_improve] ⚠ {pd['message']}", file=sys.stderr)
