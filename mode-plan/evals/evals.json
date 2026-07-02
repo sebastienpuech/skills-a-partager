@@ -306,6 +306,20 @@
           "green": true
         }
       }
+    },
+    {
+      "id": "auto_improve_gate_blocks_regression",
+      "script": "auto_improve.py",
+      "fixture_dir": "fixtures/gate_check",
+      "args": [
+        "--check"
+      ],
+      "expected": {
+        "exit_code": 0,
+        "json_match": {
+          "green": true
+        }
+      }
     }
   ]
 }

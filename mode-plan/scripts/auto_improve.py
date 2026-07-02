@@ -85,6 +85,65 @@ def gate(baseline: dict, candidate: dict) -> tuple[bool, str]:
     return True, "capability↑ ET regression==1.0 ET holdout==1.0 -> COMMIT"
 
 
+def run_gate_check() -> dict:
+    """Prouve (déterministe, CI) que le gate BLOQUE chaque type de régression et
+    n'accepte QUE la vraie amélioration. C'est la vérification anti-régression :
+    tant que ces assertions tiennent, aucun patch régressif ne peut être committé."""
+    base = {"capability": 0.80, "regression": 1.0, "holdout": 1.0}
+    scenarios = [
+        # (nom, candidate, commit_attendu)
+        ("amélioration réelle", {"capability": 0.85, "regression": 1.0, "holdout": 1.0}, True),
+        ("capability égale (pas de gain)", {"capability": 0.80, "regression": 1.0, "holdout": 1.0}, False),
+        ("capability en baisse", {"capability": 0.70, "regression": 1.0, "holdout": 1.0}, False),
+        ("régression evals (reg<1.0)", {"capability": 0.90, "regression": 0.95, "holdout": 1.0}, False),
+        ("hold-out cassé (gaming/overfit)", {"capability": 0.95, "regression": 1.0, "holdout": 0.5}, False),
+    ]
+    results = []
+    for nom, cand, expected in scenarios:
+        commit, reason = gate(base, cand)
+        results.append({"scenario": nom, "commit_attendu": expected,
+                        "commit_obtenu": commit, "ok": commit == expected, "raison": reason})
+    green = all(r["ok"] for r in results)
+    return {"mode": "gate-check", "green": green, "results": results}
+
+
+def _git(*args) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", *args], cwd=str(SKILL_ROOT),
+                          capture_output=True, text=True, encoding="utf-8")
+
+
+def sandboxed_apply(apply_cmd: str) -> dict:
+    """Enforcement anti-régression : applique un candidat dans un bac à sable git,
+    re-mesure, et REVERT (git checkout) si le gate échoue → l'arbre reste propre,
+    aucun patch régressif ne survit. Exige un arbre propre au départ.
+
+    apply_cmd = commande shell qui mute l'arbre (en prod : l'écriture du patch par
+    skill-auto-improver). Ne committe jamais : si le gate passe, laisse les
+    changements pour revue/commit humain ; sinon, les annule.
+    """
+    dirty = _git("status", "--porcelain").stdout.strip()
+    if dirty:
+        return {"error": "SANDBOX_REQUIERT_ARBRE_PROPRE", "dirty": dirty.splitlines()[:10]}
+    baseline = measure()
+    proc = subprocess.run(apply_cmd, shell=True, cwd=str(SKILL_ROOT),
+                          capture_output=True, text=True, encoding="utf-8")
+    candidate = measure()
+    commit, reason = gate(baseline, candidate)
+    result = {"apply_cmd": apply_cmd, "apply_exit": proc.returncode,
+              "baseline": baseline, "candidate": candidate,
+              "gate": reason, "commit": commit}
+    if commit:
+        result["action"] = "KEEP (gate OK) — changements laissés pour revue/commit humain"
+    else:
+        _git("checkout", "--", ".")               # revert des fichiers suivis
+        after = _git("status", "--porcelain").stdout.strip()
+        result["action"] = "REVERT (gate KO) — patch annulé"
+        result["arbre_propre_apres_revert"] = (after == "")
+        if after:
+            result["restes_non_suivis"] = after.splitlines()[:10]  # patch a créé des fichiers -> revue manuelle
+    return result
+
+
 def progressive_disclosure_check() -> dict:
     """SKILL.md ≤ 500 lignes (context engineering). Sinon : signaler (pas bloquant)."""
     skill_md = SKILL_ROOT / "SKILL.md"
@@ -151,7 +210,25 @@ def main() -> int:
     ap.add_argument("--no-audit", action="store_true", help="ne pas écrire dans proposed_fixes.md")
     ap.add_argument("--log", action="store_true",
                     help="append 1 ligne métadonnées à interactions.jsonl (utilisé par le cron hebdo)")
+    ap.add_argument("--check", action="store_true",
+                    help="test anti-régression : le gate bloque-t-il chaque type de régression ? (CI)")
+    ap.add_argument("--sandbox-apply", metavar="CMD", default=None,
+                    help="applique un candidat (commande shell) en bac à sable git, mesure, "
+                         "revert si le gate échoue (enforcement anti-régression)")
+    ap.add_argument("root", nargs="?", default=None, help="positionnel toléré (run_evals)")
     args = ap.parse_args()
+
+    if args.check:
+        rep = run_gate_check()
+        print(json.dumps(rep, ensure_ascii=False, indent=2))
+        print(f"[auto_improve] gate-check green={rep['green']}", file=sys.stderr)
+        return 0 if rep["green"] else 1
+
+    if args.sandbox_apply:
+        rep = sandboxed_apply(args.sandbox_apply)
+        print(json.dumps(rep, ensure_ascii=False, indent=2))
+        print(f"[auto_improve] sandbox: {rep.get('action', rep.get('error'))}", file=sys.stderr)
+        return 0
 
     baseline = measure()
     # V1 : aucun candidat n'est appliqué dans une passe à sec -> candidat = baseline.
