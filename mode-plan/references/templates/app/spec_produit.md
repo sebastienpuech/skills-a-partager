@@ -184,4 +184,21 @@ Comment on saura que le produit est bon :
 
 ---
 
+## 12bis. Limites LLM pour ce skill (+ contournements)   [OBLIGATOIRE si type=skill/agent]
+
+> Rempli en Phase 2 via `diagnostic-plafonds` sur le DOMAINE + les TECHNIQUES du skill.
+> On ne peut pas dépasser un plafond qu'on n'a pas nommé. (harnais H9, gate C14)
+
+| # | Limite du LLM pour CETTE tâche | Classe | Preuve / symptôme observé | Contournement | Cas golden |
+|---|--------------------------------|--------|---------------------------|---------------|------------|
+| LM1 | [ce que le modèle ne fait PAS de façon fiable ici] | contournable-ingénierie \| structurel-IA-seule \| irréductible | [où/quand ça casse, exemple concret] | [outil \| vérifieur \| décomposition \| human-in-loop \| → labo-recherche] | [id du cas §10bis] |
+
+**Règles de remplissage :**
+- **contournable-ingénierie** → un outil/scaffold la neutralise (ex. calcul délégué à du code, RAG pour un fait, schéma imposé). Prouver par un cas golden should-fire (avec contournement) + should-fail (sans).
+- **structurel-IA-seule** → décomposition + vérifieur explicite, OU escalade à `labo-recherche` (invention de contournement). Ne pas prétendre l'avoir résolu si le golden ne le prouve pas.
+- **irréductible** → borner le scope du skill pour l'éviter, et l'inscrire dans « Limites connues » — jamais la cacher.
+- Toute limite « contournable/structurelle » SANS cas golden associé = trou (le `critic-harnais` H9 la flague).
+
+---
+
 *Document maintenu par : dialogue itératif. Dernière màj : [date].*

@@ -13,6 +13,8 @@ Conséquence pour un plan mode-plan : on cesse de planifier *comment l'agent pen
 
 **Règle de tranchage de l'orchestration (anti-bloat cognitif)** : pour tout fan-out d'agents (Tournament, panel, multi-critics), poser le test empirique — *si on remplace les N agents par 1 seul appel d'un bon modèle, est-ce que le score golden baisse ?* S'il ne baisse pas, l'orchestration substituait une capacité que le modèle a maintenant → **la supprimer**. S'il baisse, elle injecte de l'information/vérification réelle → la garder. La vraie parallélisation (un agent par contenu distinct) reste valable ; la redondance cognitive est une taxe.
 
+**Limites du domaine vs limites génériques (v4.1)** : le harnais gère les échecs GÉNÉRIQUES du modèle (H1–H8). Les échecs SPÉCIFIQUES au domaine du skill (ce que le modèle ne sait pas faire *pour cette tâche*) doivent être nommés séparément (**H9**) — sinon on scaffolde à l'aveugle. Nommer → classer → contourner → prouver (par un cas golden). Alimenté par `diagnostic-plafonds`.
+
 **Règle du writer unique (orchestration 2026)** : les **lectures / l'intelligence parallélisent** (un agent par contenu distinct, exploration en éventail) ; les **écritures / décisions de synthèse restent single-threaded** — un seul agent consolide et tranche, en une passe unifiée. Des sous-agents qui écrivent en parallèle prennent des décisions implicites contradictoires. C'est la résolution du débat Cognition/Anthropic : pas « multi-agent oui/non » mais « parallélise les lectures, sérialise les écritures ». *(mode-plan applique déjà ça : critics en parallèle, Juge/patch en série — c'est une formalisation, pas un changement.)*
 
 ---
@@ -105,6 +107,7 @@ Un plan est « harnais-complet » s'il répond OUI à chacune :
 - [ ] **H6 — Garde-fous** : budgets, timeouts, caps, HITL/sandbox sont-ils définis ? (`archi.md`)
 - [ ] **H7 — Outils** : set minimal, non-redondant, erreurs actionnables ? Chargement différé / exécution par code si gros jeu d'outils ? (`archi.md`)
 - [ ] **H8 — Justification du fan-out** : chaque multi-agent passe-t-il le test empirique (vs 1 appel fort) ? Les écritures sont-elles single-threaded ? Sinon, le simplifier. (`archi.md` §4)
+- [ ] **H9 — Limites LLM spécifiques au domaine** : le plan nomme-t-il ce que le modèle ne sait PAS faire de façon fiable *pour cette tâche précise* (au-delà des limites génériques H1–H8), chaque limite **classée** (contournable-ingénierie / structurel-IA-seule / irréductible), **contournée**, et **prouvée par un cas golden** ? Alimenté par `diagnostic-plafonds`. Absent pour un skill/agent non trivial → **MAJEUR**. (`spec_produit.md` §12bis)
 
 Gravité par défaut si manquant : **H1, H2 = CRITIQUE** (sans signal de succès ni vérification — ou avec une vérification gamable —, le reste est aveugle). **H3, H4 = MAJEUR**. **H5, H6, H7, H8 = MAJEUR ou MINEUR** selon l'enjeu du projet.
 

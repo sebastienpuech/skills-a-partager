@@ -109,6 +109,10 @@ Présenter un récap structuré (8-12 lignes) avec tous les Q1-Q10 + vision + r�
 
 ## Phase 2 — Draft du plan (avec injection de patterns)
 
+### Étape 2.0bis — Diagnostic des plafonds du domaine (v4.1, si type=skill/agent ET ambition ≥ robuste)
+
+Avant de drafter, lancer `diagnostic-plafonds` sur le domaine + les techniques prévues du skill. Le résultat remplit `spec_produit.md` §12bis (Limites LLM pour ce skill) : pour chaque limite → **classer** (contournable-ingénierie / structurel-IA-seule / irréductible), décider du **contournement**, et **écrire le cas golden §10bis en même temps**. Une limite « structurel-IA-seule » sans contournement connu → candidate à `labo-recherche` (phase L3). Sur app jetable : sauter. La gate `--llmlimits=on` (C14) bloque la livraison si §12bis manque pour un skill/agent.
+
 ### Étape 2.1 — Créer le dossier de sortie
 
 ```
@@ -398,7 +402,9 @@ python3 scripts/self_diagnosis.py outputs/<nom_projet>/ \
     --memory=<complet|issues_only|aucune> \
     --harness=on \
     --autoimprove=on \
-    --handoff=on
+    --handoff=on \
+    --selfeval=on \
+    --llmlimits=on
 ```
 
 Le script check (binairement, 0 token) :
@@ -414,6 +420,8 @@ Le script check (binairement, 0 token) :
 - C10 (v3.3, si `--harness=on`) : `spec_produit.md` a un signal de succès / golden set (H1) ET `archi.md` a une couche harnais (H2/H6). Sans `--harness`, le script tourne à 9 checks (rétro-compatible CI/evals).
 - C11 (v3.5, si `--autoimprove=on` ET type=skill) : `spec_produit.md` a une section boucle d'auto-amélioration (§11 : `skill-auto-improver` — signal + mémoire + moteur + déclencheur). Skill-only, off par défaut → evals inchangées.
 - C12 (v3.6, si `--handoff=on`) : le dossier du plan contient un `CLAUDE.md` (ou `AGENTS.md`) — le handoff repo-resident généré en 4.3bis. Off par défaut → evals inchangées.
+- C13 (v4.0, si `--selfeval=on`) : le self-golden-set du skill existe et tourne (`self_eval_debate.py --replay`) ET le grader-of-graders (`_meta_eval.py`) passe. Porte sur le skill lui-même. Off par défaut → evals inchangées.
+- C14 (v4.1, si `--llmlimits=on` ET type=skill/agent) : `spec_produit.md` a une section « Limites LLM pour ce skill » (§12bis) avec au moins une limite LMx nommée (H9). Off par défaut → evals inchangées.
 
 Si `status: FAIL` → ne PAS livrer, reprendre les étapes correspondantes et relancer.
 
@@ -470,6 +478,7 @@ Présenter à l'user :
 - **(v3.2) Lancer `run_evals.py` après chaque modif de prompts d'agent** : faux ami — les evals ne testent QUE les scripts Python. Pour tester les agents, faire un vrai run et faire confiance à l'Observateur + ta lecture humaine.
 - **(v3.3) Drafter un plan sans couche harnais** → un plan sans signal de succès (golden set + assertions) est aveugle. Le `critic-harnais` le flague CRITIQUE (H1) et la gate `--harness=on` le bloque (C10). Le harnais n'est pas optionnel dès qu'il y a un golden set.
 - **(v3.5) Planifier un skill sans boucle d'auto-amélioration** → un skill sans signal rejouable + mémoire + moteur (`skill-auto-improver`) + déclencheur ne s'améliore jamais sur ses vrais échecs. Le `critic-harnais` (H4b) le flague MAJEUR et la gate `--autoimprove=on` le bloque (C11). NE concerne QUE les livrables de type skill.
+- **(v4.1) Scaffolder sans nommer le plafond du domaine** → on met des outils/vérifieurs au hasard sans savoir CE que le modèle rate vraiment pour cette tâche. Le `critic-harnais` (H9) le flague, la gate `--llmlimits=on` (C14) le bloque. Nommer le plafond (via `diagnostic-plafonds`) AVANT de le contourner. NE concerne QUE skill/agent.
 - **(v3.5) Confondre « auto-amélioration du livrable » et « auto-amélioration de mode-plan »** → mode-plan ne se réécrit JAMAIS en cours de run (cf. règle de consolidation). L'auto-amélioration de mode-plan lui-même = job de `skill-auto-improver`, séparément, la nuit, nourri par l'Observateur → `_mode-plan-meta/issues.md`.
 - **(v3.6) Coller le plan dans Claude Code comme un prompt jetable** → contexte éphémère, perdu au reset. Le plan vit DANS le repo (`CLAUDE.md` à la racine + les 4 fichiers), Claude Code le relit à chaque session. mode-plan génère le `CLAUDE.md` (4.3bis) ; la gate `--handoff=on` (C12) bloque si absent.
 - **(v3.3) Garder un fan-out multi-agent sans le passer au test empirique** → si remplacer N agents par 1 appel d'un bon modèle ne baisse pas le score golden, l'orchestration est une taxe. Le `critic-harnais` (H8) doit le challenger. Inverse aussi vrai : ne pas sur-harnacher un projet jetable.

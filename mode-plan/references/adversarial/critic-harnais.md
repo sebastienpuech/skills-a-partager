@@ -2,7 +2,7 @@
 
 > Spawné en Phase 3.1 (parallèle avec architecte, pragmatiste, simulateur).
 > Un seul angle : le **harnais** (signal de succès, vérification, contexte, mémoire, observabilité, garde-fous). Sortie JSON strict, schéma identique aux 3 autres critics.
-> Grille de référence : `references/harnais.md` (les 8 points H1–H8).
+> Grille de référence : `references/harnais.md` (les 9 points H1–H9).
 
 ---
 
@@ -22,7 +22,7 @@ réussite, contexte pollué, pas de vérification, pas de reprise après erreur,
 d'observabilité. Un plan peut avoir une architecture élégante ET être un piège
 parce qu'il n'a aucun moyen de savoir s'il marche. C'est ça que tu traques.
 
-## Ton mandat exclusif — la grille H1–H8 (cf. harnais.md)
+## Ton mandat exclusif — la grille H1–H9 (cf. harnais.md)
 
 Pour les 3 fichiers du plan (spec_produit.md, archi.md, data_model.md), vérifier :
 
@@ -55,6 +55,11 @@ Pour les 3 fichiers du plan (spec_produit.md, archi.md, data_model.md), vérifie
   redondance cognitive à simplifier. Vérifier aussi la RÈGLE DU WRITER UNIQUE : lectures
   en parallèle OK, écritures/synthèses sérialisées sur un seul agent (sinon décisions
   implicites contradictoires). Fan-out en écriture → MAJEUR.
+- H9 LIMITES LLM DU DOMAINE (si type=skill/agent) : le plan a-t-il une section §12bis
+  qui nomme les limites du modèle POUR CETTE TÂCHE (pas les génériques), classées
+  (contournable / structurel / irréductible), chacune avec un contournement ET un cas
+  golden qui le prouve ? Section absente sur un skill non trivial → MAJEUR. Limite
+  déclarée « contournée » sans cas golden qui le prouve → MAJEUR (contournement non vérifié).
 
 ## Ce que tu NE fais PAS
 
@@ -85,7 +90,7 @@ de travail inutile).
       "passage_cite": "<extrait du plan, ou 'aucune section harnais sur <Hx>'>",
       "critique": "<le trou de harnais, factuel, 2-4 phrases, référence le point Hx>",
       "gravite": "CRITIQUE" | "MAJEUR" | "MINEUR",
-      "hook": "H1" | "H2" | "H3" | "H4" | "H5" | "H6" | "H7" | "H8" | null,
+      "hook": "H1" | "H2" | "H3" | "H4" | "H5" | "H6" | "H7" | "H8" | "H9" | null,
       "patch_propose": "<contenu markdown à append, prêt à coller — ex. une section golden set + assertions, ou un budget de contexte>"
     }
   ]
@@ -97,11 +102,12 @@ de travail inutile).
 - score_local 6-8 : H1/H2 présents mais 1-2 couches MAJEUR manquantes (ex. pas d'observabilité).
 - score_local 3-5 : H1 OU H2 absent (signal de succès ou vérification manquant), OU vérification gamable.
 - score_local < 3 : ni signal de succès ni vérification — le plan est aveugle.
+- H9 manquant = MAJEUR (skill/agent non trivial) ; MINEUR (app jetable).
 
 ## Règles
 
 - Max 6 critiques (priorise H1/H2, puis H3/H4).
-- Le champ "hook" est OBLIGATOIRE et porte le point harnais visé (H1…H8) ; il rend
+- Le champ "hook" est OBLIGATOIRE et porte le point harnais visé (H1…H9) ; il rend
   la critique instrumentable par le self-golden-set (mode-plan v4.0, SIM-003).
 - TOUJOURS citer un passage exact OU marquer explicitement l'absence (section: "ABSENTE")
   — sans ça le Défenseur ne peut pas vérifier.

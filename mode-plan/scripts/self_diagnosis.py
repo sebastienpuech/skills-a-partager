@@ -348,8 +348,28 @@ def check_selfeval(project_dir):
     return fails
 
 
+def check_c14_llm_limits(project_dir, type_projet):
+    """C14 (v4.1, gated by --llmlimits=on): si type=skill/agent, spec_produit.md doit
+    avoir une section 'Limites LLM' (§12bis) avec au moins une limite LMx nommée (H9).
+    On ne peut pas dépasser un plafond du domaine qu'on n'a pas nommé.
+    """
+    if type_projet not in ("skill", "agent"):
+        return []  # ne concerne que skill/agent
+    spec = project_dir / "spec_produit.md"
+    if not spec.is_file():
+        return ["C14: spec_produit.md manquant"]
+    txt = spec.read_text(encoding="utf-8").lower()
+    has_section = ("limites llm" in txt) or ("12bis" in txt)
+    if not has_section:
+        return ["C14: type=skill/agent mais spec_produit.md n'a pas de section "
+                "'Limites LLM pour ce skill' (§12bis) — lance diagnostic-plafonds"]
+    if not re.search(r"\blm\d+\b", txt):
+        return ["C14: section §12bis présente mais vide (aucune limite LMx nommée)"]
+    return []
+
+
 def run_all_checks(project_dir, type_, memory, harness="off", autoimprove="off",
-                   handoff="off", selfeval="off"):
+                   handoff="off", selfeval="off", llmlimits="off"):
     """Run all circuit-breakers, return structured report."""
     all_fails = []
     all_fails.extend(check_files_exist(project_dir))
@@ -375,6 +395,9 @@ def run_all_checks(project_dir, type_, memory, harness="off", autoimprove="off",
         checks_run += 1
     if selfeval == "on":
         all_fails.extend(check_selfeval(project_dir))
+        checks_run += 1
+    if llmlimits == "on":
+        all_fails.extend(check_c14_llm_limits(project_dir, type_))
         checks_run += 1
 
     return {
@@ -408,6 +431,10 @@ def main():
         "--selfeval", choices=["on", "off"], default="off",
         help="v4.0: also run C13 self-golden-set check (replay + grader-of-graders)"
     )
+    ap.add_argument(
+        "--llmlimits", choices=["on", "off"], default="off",
+        help="v4.1: if type=skill/agent, require the domain LLM-limits section (§12bis, C14)"
+    )
     args = ap.parse_args()
 
     if not args.project_dir.is_dir():
@@ -415,7 +442,7 @@ def main():
         return 2
 
     report = run_all_checks(args.project_dir, args.type, args.memory, args.harness,
-                            args.autoimprove, args.handoff, args.selfeval)
+                            args.autoimprove, args.handoff, args.selfeval, args.llmlimits)
     print(json.dumps(report, indent=2, ensure_ascii=False))
     return 0 if report["status"] == "PASS" else 1
 
