@@ -3,7 +3,7 @@ name: mode-plan
 description: Force la production d'un plan rigoureux en 4 fichiers markdown (spec_produit, archi, data_model, sessions_claude_code) pour tout projet complexe (app, software, skill multi-agent, doc structuré), avec Debate Room adversariale (3 critics parallèles + Défenseur + Juge) et génération de prompts Claude Code self-contained. Utiliser dès que l'utilisateur veut démarrer un nouveau projet complexe, faire un plan d'attaque, planifier un développement multi-sessions, structurer une refonte avant d'implémenter, méthode Cherny, mode plan, plan rigoureux, fais-moi un plan, on planifie d'abord, avant de coder, comme pour le projet Coach, les 4 fichiers. Le skill produit le plan, le challenge, et génère les prompts CC — il ne code rien. Le plan intègre une couche harnais (golden set/signal de succès, vérification, garde-fous, observabilité, mémoire). NE PAS utiliser pour projet simple (≤3 sessions anticipées, pas de golden set), itération sur un projet en cours, ou exécution effective des sessions.
 ---
 
-# Mode Plan v3.6 — Plan rigoureux Harnais-Aware (Debate Room + Refinement Loop + Méta-cognitif)
+# Mode Plan v4.1 — Plan rigoureux Harnais-Aware (Debate Room + Refinement Loop + Méta-cognitif)
 
 Ce skill produit un plan en 4 fichiers markdown pour un projet complexe, le fait challenger par une **Debate Room** (4 critics parallèles + Défenseur + Juge), patche les trous **confirmés** (faux négatifs éliminés), et génère les prompts Claude Code de chaque session. **Le skill ne code rien.** Il s'arrête au handoff CC.
 
