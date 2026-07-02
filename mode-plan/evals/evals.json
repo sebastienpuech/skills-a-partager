@@ -278,6 +278,20 @@
           "decision.decision": "CONTINUE"
         }
       }
+    },
+    {
+      "id": "bestofn_mechanism_picks_max",
+      "script": "best_of_n.py",
+      "fixture_dir": "fixtures/bestofn_check",
+      "args": [
+        "--check"
+      ],
+      "expected": {
+        "exit_code": 0,
+        "json_match": {
+          "green": true
+        }
+      }
     }
   ]
 }
