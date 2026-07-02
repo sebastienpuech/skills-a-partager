@@ -320,6 +320,20 @@
           "green": true
         }
       }
+    },
+    {
+      "id": "l3_gate_mechanism",
+      "script": "l3_gate.py",
+      "fixture_dir": "fixtures/l3_check",
+      "args": [
+        "--check"
+      ],
+      "expected": {
+        "exit_code": 0,
+        "json_match": {
+          "green": true
+        }
+      }
     }
   ]
 }
