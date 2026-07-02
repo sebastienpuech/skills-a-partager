@@ -301,16 +301,17 @@ def _kill_port(port: int) -> None:
                 continue
             try:
                 pid = int(pid_str)
-                # Verify the process is a Python process (ours) before killing
+                # Vérifier la ligne de commande COMPLÈTE : ne tuer que notre propre
+                # generate_review, pas n'importe quel process Python sur le port
                 cmdline_result = subprocess.run(
-                    ["ps", "-p", str(pid), "-o", "comm="],
+                    ["ps", "-p", str(pid), "-o", "args="],
                     capture_output=True, text=True, timeout=3,
                 )
-                proc_name = cmdline_result.stdout.strip().lower()
-                if "python" in proc_name:
+                proc_args = cmdline_result.stdout.strip().lower()
+                if "generate_review" in proc_args:
                     os.kill(pid, signal.SIGTERM)
                 else:
-                    print(f"Note: port {port} used by '{proc_name}' (pid {pid}), skipping", file=sys.stderr)
+                    print(f"Note: port {port} used by '{proc_args[:60]}' (pid {pid}), skipping", file=sys.stderr)
             except (ProcessLookupError, ValueError):
                 pass
         if result.stdout.strip():
@@ -470,8 +471,8 @@ def main() -> None:
         port = server.server_address[1]
 
     url = f"http://localhost:{port}"
-    print(f"\n  Eval Viewer")
-    print(f"  ─────────────────────────────────")
+    print("\n  Eval Viewer")
+    print("  ─────────────────────────────────")
     print(f"  URL:       {url}")
     print(f"  Workspace: {workspace}")
     print(f"  Feedback:  {feedback_path}")
@@ -479,7 +480,7 @@ def main() -> None:
         print(f"  Previous:  {args.previous_workspace} ({len(previous)} runs)")
     if benchmark_path:
         print(f"  Benchmark: {benchmark_path}")
-    print(f"\n  Press Ctrl+C to stop.\n")
+    print("\n  Press Ctrl+C to stop.\n")
 
     webbrowser.open(url)
 

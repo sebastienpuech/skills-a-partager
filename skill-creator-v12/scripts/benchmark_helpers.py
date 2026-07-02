@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Helper functions for aggregate_benchmark.py."""
 
-import json, math
+import json
+import math
 from pathlib import Path
 
 

@@ -18,7 +18,6 @@ Tests:
 """
 
 import json
-import os
 import subprocess
 import sys
 import tempfile
@@ -338,11 +337,11 @@ def test_skill_md_contains_critical_guardrails_inline():
             f"SKILL.md missing critical guardrail: {label} (pattern: {pattern})"
 
 
-def test_skill_md_says_v11():
+def test_skill_md_says_v12():
     skill_md = (SCRIPTS_DIR.parent / "SKILL.md").read_text()
-    assert "skill-creator-v11" in skill_md, "Name should be skill-creator-v11"
-    assert "# Skill Creator v11" in skill_md, "Title should say v11"
-    assert "v1 through v10" in skill_md, "Should mention superseding v1-v10"
+    assert "skill-creator-v12" in skill_md, "Name should be skill-creator-v12"
+    assert "# Skill Creator v12" in skill_md, "Title should say v12"
+    assert "v1 through v11" in skill_md, "Should mention superseding v1-v11"
 
 
 def test_skill_md_has_guardrails_by_task_type_inline():
@@ -404,7 +403,6 @@ def test_gate_check_preflight_passes_on_v10():
 # ────────────────────────────────────────────
 
 if __name__ == "__main__":
-    import inspect
     passed = 0
     failed = 0
     errors = []

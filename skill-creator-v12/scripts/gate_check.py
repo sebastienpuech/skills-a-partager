@@ -20,7 +20,6 @@ Gates:
 
 import argparse
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -97,7 +96,13 @@ def check_feedback(iteration_dir: str) -> bool:
     reviews = data.get("reviews", [])
 
     if status != "complete":
-        print(f"GATE 3 WARNING: feedback status is '{status}', not 'complete'.")
+        print(f"GATE 3 FAILED: feedback status is '{status}', not 'complete'.")
+        print("The human review is not finished — wait for submission.")
+        return False
+
+    if not reviews:
+        print("GATE 3 FAILED: feedback.json has status 'complete' but zero reviews.")
+        return False
 
     non_empty = [r for r in reviews if r.get("feedback", "").strip()]
     print(f"GATE 3 PASSED: feedback.json found with {len(reviews)} reviews "
@@ -128,7 +133,6 @@ def check_stagnation(workspace_dir: str) -> bool:
         return False
 
     pattern = data.get("pattern", "unknown")
-    recommendation = data.get("recommendation", "unknown")
     best_rate = data.get("best_pass_rate", 0)
     iterations = data.get("iterations", [])
     current_rate = iterations[-1]["pass_rate"] if iterations else 0

@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """Aggregate individual run results into benchmark summary statistics."""
 
-import argparse, json, sys
+import argparse
+import json
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 try:
-    from scripts.benchmark_helpers import calculate_stats, load_run_results, aggregate_results, detect_stagnation
+    from scripts.benchmark_helpers import load_run_results, aggregate_results, detect_stagnation
 except ImportError:
-    from benchmark_helpers import calculate_stats, load_run_results, aggregate_results, detect_stagnation
+    from benchmark_helpers import load_run_results, aggregate_results, detect_stagnation
 
 
 def generate_benchmark(benchmark_dir: Path, skill_name: str = "", skill_path: str = "") -> dict:
@@ -136,7 +138,7 @@ def main():
     configs = [k for k in run_summary if k != "delta" and k != "warnings"]
     delta = run_summary.get("delta", {})
 
-    print(f"\nSummary:")
+    print("\nSummary:")
     for config in configs:
         pr = run_summary[config]["pass_rate"]["mean"]
         label = config.replace("_", " ").title()

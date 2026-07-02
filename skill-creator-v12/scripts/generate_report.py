@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """Generate HTML report from run_loop.py output."""
 
-import argparse, html, json, sys
+import argparse
+import html
+import json
+import sys
 from pathlib import Path
 
 
 def generate_html(data: dict, auto_refresh: bool = False, skill_name: str = "") -> str:
     history = data.get("history", [])
-    holdout = data.get("holdout", 0)
     title_prefix = html.escape(skill_name + " \u2014 ") if skill_name else ""
 
     train_queries: list[dict] = []
@@ -192,10 +194,6 @@ def generate_html(data: dict, auto_refresh: bool = False, skill_name: str = "") 
 
     for h in history:
         iteration = h.get("iteration", "?")
-        train_passed = h.get("train_passed", h.get("passed", 0))
-        train_total = h.get("train_total", h.get("total", 0))
-        test_passed = h.get("test_passed")
-        test_total = h.get("test_total")
         description = h.get("description", "")
         train_results = h.get("train_results", h.get("results", []))
         test_results = h.get("test_results", [])

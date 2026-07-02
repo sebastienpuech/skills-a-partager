@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """Lint check functions for skill_lint.py."""
 
-import json, re
+import json
+import re
 from pathlib import Path
 
 try:
     import yaml
 except ImportError:
-    raise ImportError(
-        "PyYAML is required by lint_checks.py. Install it with: pip install pyyaml"
-    )
+    raise ImportError("PyYAML is required by lint_checks.py. Install: pip install pyyaml")
 
 
 def parse_frontmatter(content: str) -> dict | None:
@@ -90,7 +89,7 @@ def check_script_sizes(skill_path: Path):
     py_files = [f for f in scripts_dir.glob("*.py") if not f.name.startswith("__")]
     if not py_files:
         return True, "No Python files"
-    oversized = [f"{f.name} ({count_lines(f.read_text())} lines)" for f in py_files if count_lines(f.read_text()) > 300]
+    oversized = [f"{f.name} ({count_lines(f.read_text(encoding="utf-8", errors="replace"))} lines)" for f in py_files if count_lines(f.read_text(encoding="utf-8", errors="replace")) > 300]
     if oversized:
         return False, f"Scripts > 300 lines: {', '.join(oversized)}"
     return True, f"All {len(py_files)} scripts within 300-line limit"
@@ -107,7 +106,7 @@ def check_context_budget(skill_path: Path, content: str):
     agents_dir = skill_path / "agents"
     if agents_dir.exists():
         for f in agents_dir.glob("*.md"):
-            size = len(f.read_text())
+            size = len(f.read_text(encoding="utf-8", errors="replace"))
             file_sizes[f"agents/{f.name}"] = size
             total += size
 
@@ -126,7 +125,7 @@ def check_context_budget(skill_path: Path, content: str):
             if any(re.search(p, lower_content) for p in cond):
                 skipped_refs.append(f.name)
                 continue
-            size = len(f.read_text())
+            size = len(f.read_text(encoding="utf-8", errors="replace"))
             file_sizes[f"references/{f.name}"] = size
             counted_refs.append(f.name)
             total += size
@@ -142,14 +141,14 @@ def check_inline_data_blocks(skill_path: Path, content: str):
     issues = []
     for block in re.findall(r'```[\s\S]*?```', content):
         if count_lines(block) > 30:
-            issues.append(f"Code block > 30 lines")
+            issues.append("Code block > 30 lines")
     scripts_dir = skill_path / "scripts"
     if scripts_dir.exists():
         for f in scripts_dir.glob("*.py"):
             if f.name.startswith("__"):
                 continue
             in_block, max_block = 0, 0
-            for line in f.read_text().splitlines():
+            for line in f.read_text(encoding="utf-8", errors="replace").splitlines():
                 stripped = line.strip()
                 if re.match(r'^["\'].*["\']:\s', stripped) or (re.match(r'^[\d"\'{(]', stripped) and stripped.endswith(',')):
                     in_block += 1
@@ -181,9 +180,9 @@ def check_circuit_breakers(skill_path: Path):
     if not py_files:
         return True, "No Python files"
     cb_patterns = [r"circuit.?breaker", r"QUARANTINE", r"flag.?rate", r"assert ", r"raise\s+ValueError", r"alerts\.append", r"if\s+.*>\s*0\.\d", r"if\s+len\(.*\)\s*[>=<]"]
-    files_with_cb = sum(1 for f in py_files if not f.name.startswith("__") and any(re.search(p, f.read_text()) for p in cb_patterns))
+    files_with_cb = sum(1 for f in py_files if not f.name.startswith("__") and any(re.search(p, f.read_text(encoding="utf-8", errors="replace")) for p in cb_patterns))
     if files_with_cb == 0:
-        return False, f"No circuit-breaker patterns in scripts"
+        return False, "No circuit-breaker patterns in scripts"
     return True, f"{files_with_cb}/{len(py_files)} have circuit-breakers"
 
 
@@ -195,7 +194,7 @@ def check_circuit_breaker_quality(skill_path: Path):
     if not py_files:
         return True, "No Python files"
     domain_patterns = [r"flag.?rate", r"QUARANTINE", r"balance", r"debit.*credit|credit.*debit", r"row.?count", r"threshold", r"rate\s*>", r"rate\s*<", r"\.nunique\(\)", r"avg.*words|words.*avg", r"alerts\.append", r"mismatch", r"violation", r"inconsisten"]
-    files_with_domain_cb = sum(1 for f in py_files if any(re.search(p, f.read_text(), re.IGNORECASE) for p in domain_patterns))
+    files_with_domain_cb = sum(1 for f in py_files if any(re.search(p, f.read_text(encoding="utf-8", errors="replace"), re.IGNORECASE) for p in domain_patterns))
     if files_with_domain_cb == 0 and len(py_files) > 0:
         return False, "No domain-specific circuit-breakers found"
     return True, f"{files_with_domain_cb}/{len(py_files)} have domain-specific breakers"
@@ -224,7 +223,7 @@ def check_examples_structure(skill_path: Path, content: str):
         issues.append("Missing index.json")
     else:
         try:
-            data = json.loads(index_file.read_text())
+            data = json.loads(index_file.read_text(encoding="utf-8", errors="replace"))
             examples = data.get("examples", [])
             if not examples:
                 issues.append("Empty examples array")
@@ -253,7 +252,7 @@ def check_agents_have_instructions(skill_path: Path):
     agent_files = list(agents_dir.glob("*.md"))
     if not agent_files:
         return True, "No .md files"
-    thin_agents = [f.name for f in agent_files if count_lines(f.read_text()) < 10]
+    thin_agents = [f.name for f in agent_files if count_lines(f.read_text(encoding="utf-8", errors="replace")) < 10]
     if thin_agents:
         return False, f"Thin agents (< 10 lines): {', '.join(thin_agents)}"
     return True, f"All {len(agent_files)} agents OK"
@@ -274,7 +273,7 @@ def check_eval_schema(skill_path: Path):
     if not evals_json.exists():
         return True, "No evals.json"
     try:
-        data = json.loads(evals_json.read_text())
+        data = json.loads(evals_json.read_text(encoding="utf-8", errors="replace"))
     except json.JSONDecodeError as e:
         return False, f"Invalid JSON: {e}"
     if "evals" not in data:

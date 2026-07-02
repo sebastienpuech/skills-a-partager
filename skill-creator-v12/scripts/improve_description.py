@@ -35,14 +35,20 @@ def _call_claude(prompt: str, model: str | None, timeout: int = 300) -> str:
     # programmatic subprocess usage is safe. Same pattern as run_eval.py.
     env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
 
-    result = subprocess.run(
-        cmd,
-        input=prompt,
-        capture_output=True,
-        text=True,
-        env=env,
-        timeout=timeout,
-    )
+    try:
+        result = subprocess.run(
+            cmd,
+            input=prompt,
+            capture_output=True,
+            text=True,
+            env=env,
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(
+            f"claude -p a dépassé le timeout ({timeout}s) — relancer l'itération "
+            f"ou augmenter --timeout"
+        ) from exc
     if result.returncode != 0:
         raise RuntimeError(
             f"claude -p exited {result.returncode}\nstderr: {result.stderr}"

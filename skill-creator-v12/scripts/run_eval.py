@@ -1,7 +1,17 @@
 #!/usr/bin/env python3
 """Run trigger evaluation for a skill description."""
 
-import argparse, json, os, platform, re, shutil, subprocess, sys, time, uuid
+import argparse
+import json
+import os
+import platform
+import queue
+import re
+import shutil
+import subprocess
+import sys
+import time
+import uuid
 import threading
 
 # select.select() works on Unix for pipes but NOT on Windows.
@@ -80,35 +90,44 @@ def run_single_query(query: str, skill_name: str, skill_description: str, timeou
         buffer = ""
         pending_tool_name = None
         accumulated_json = ""
+        # Windows : un UNIQUE thread lecteur persistant (un thread/itération fuyait).
+        chunk_queue: "queue.Queue[bytes | None]" = queue.Queue()
+        if not _USE_SELECT:
+            def _reader():
+                while data := process.stdout.read(4096):
+                    chunk_queue.put(data)
+                chunk_queue.put(None)
+            threading.Thread(target=_reader, daemon=True).start()
         try:
-            while time.time() - start_time < timeout:
-                if process.poll() is not None:
+            eof = False
+            while not eof and time.time() - start_time < timeout:
+                if process.poll() is not None and _USE_SELECT:
                     remaining = process.stdout.read()
                     if remaining:
                         buffer += remaining.decode("utf-8", errors="replace")
-                    break
-                # Non-blocking read: use select on Unix, threading on Windows
-                if _USE_SELECT:
+                    eof = True
+                elif _USE_SELECT:
                     ready, _, _ = select.select([process.stdout], [], [], 1.0)
                     if not ready:
                         continue
+                    chunk = os.read(process.stdout.fileno(), 8192)
+                    if not chunk:
+                        eof = True
+                    else:
+                        buffer += chunk.decode("utf-8", errors="replace")
                 else:
-                    # Windows fallback: read in a thread with timeout
-                    chunk_holder = [None]
-                    def _read():
-                        chunk_holder[0] = process.stdout.read(4096)
-                    t = threading.Thread(target=_read, daemon=True)
-                    t.start()
-                    t.join(timeout=1.0)
-                    if chunk_holder[0] is None:
+                    try:
+                        chunk = chunk_queue.get(timeout=1.0)
+                    except queue.Empty:
                         continue
-                    buffer += chunk_holder[0].decode("utf-8", errors="replace")
-                    continue
-                chunk = os.read(process.stdout.fileno(), 8192)
-                if not chunk:
-                    break
-                buffer += chunk.decode("utf-8", errors="replace")
+                    if chunk is None:
+                        eof = True
+                    else:
+                        buffer += chunk.decode("utf-8", errors="replace")
 
+                # Parsing exécuté pour TOUTES les branches (Windows et reliquat inclus).
+                if eof and not buffer.endswith("\n"):
+                    buffer += "\n"
                 while "\n" in buffer:
                     line, buffer = buffer.split("\n", 1)
                     line = line.strip()

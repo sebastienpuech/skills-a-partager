@@ -160,19 +160,19 @@ def run_loop(
                 print(f"\nMax iterations reached ({max_iterations}).", file=sys.stderr)
             break
         if verbose:
-            print(f"\nImproving description...", file=sys.stderr)
+            print("\nImproving description...", file=sys.stderr)
         t0 = time.time()
         blinded_history = [{k: v for k, v in h.items() if not k.startswith("test_")} for h in history]
-        new_description = improve_description(
-            skill_name=name,
-            skill_content=content,
-            current_description=current_description,
-            eval_results=train_results,
-            history=blinded_history,
-            model=model,
-            log_dir=log_dir,
-            iteration=iteration,
-        )
+        try:
+            new_description = improve_description(
+                skill_name=name, skill_content=content,
+                current_description=current_description, eval_results=train_results,
+                history=blinded_history, model=model, log_dir=log_dir, iteration=iteration,
+            )
+        except RuntimeError as exc:
+            exit_reason = f"improve_description failed: {exc} (arrêt propre, historique conservé)"
+            print(f"\nWARNING: {exit_reason}", file=sys.stderr)
+            break
         improve_elapsed = time.time() - t0
 
         if verbose:
