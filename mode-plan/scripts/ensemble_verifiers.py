@@ -13,6 +13,10 @@ objet=ensemble_verifieurs). Mesuré sur des cas de vérification DIFFICILES (eva
 Writer-unique (archi §4bis) : les 3 vérifieurs LISENT en parallèle ; l'agrégation (vote) et
 la décision restent SÉRIALISÉES ici (un seul agent agrège). Pas d'écritures concurrentes.
 
+Provenance (audit) : pas de provenance-hash sur les verdicts car la mesure est LIVE-only
+(aucun prompt d'agent .md à hasher, one-shot non rejoué en CI). Si un mode replay/cache des
+verdicts est ajouté un jour, un provenance-hash (comme evals/selfeval/) redevient nécessaire.
+
 Règle d'agrégation (déterministe) :
   - majorité (≥ 2 verdicts identiques sur 3) → ce verdict.
   - 3 verdicts distincts (pas de majorité) → **PARTIELLE** (hedge : ni confirmer ni rejeter

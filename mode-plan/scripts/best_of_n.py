@@ -38,6 +38,9 @@ SELFEVAL_DIR = SKILL_ROOT / "evals" / "selfeval"
 #  Rubrique DÉTERMINISTE (0-10) d'une section §10bis (golden set / harnais).
 #  Chaque critère = présence d'au moins un mot-clé (sur le texte normalisé).
 #  Vérifiable, reproductible, PAS un juge LLM libre.
+#  ⚠ Goodhart (audit) : le gain best-of-N est conditionné à la FIDÉLITÉ de cette
+#  rubrique (proxy par mots-clés, gamable par keyword-stuffing). Si un gain paraît
+#  trop beau, re-challenger la rubrique par un œil externe avant d'y croire.
 # --------------------------------------------------------------------------- #
 RUBRIC = [
     (2, "signal_de_succes", ["golden set", "signal de succes", "jeu de test"]),

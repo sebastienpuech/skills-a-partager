@@ -139,6 +139,16 @@ def sandboxed_apply(apply_cmd: str) -> dict:
     baseline = measure()
     proc = subprocess.run(apply_cmd, shell=True, cwd=str(SKILL_ROOT),
                           capture_output=True, text=True, encoding="utf-8")
+    # Audit #B : si l'application échoue (apply_exit != 0 — ex. syntaxe shell non
+    # portable), NE PAS mesurer/juger. Une panne d'application ≠ « la techno n'aide
+    # pas ». Statut explicite APPLY_FAILED, arbre remis propre.
+    if proc.returncode != 0:
+        _git("checkout", "--", ".")
+        _git("clean", "-fdq", "--", ".")
+        return {"status": "APPLY_FAILED", "apply_cmd": apply_cmd, "apply_exit": proc.returncode,
+                "stderr": (proc.stderr or "")[:500],
+                "note": "le patch ne s'est PAS appliqué (apply_exit != 0) — ni commit, ni 'pas de gain' ; "
+                        "corriger/rendre portable la commande et relancer."}
     candidate = measure()
     commit, reason = gate(baseline, candidate)
     result = {"apply_cmd": apply_cmd, "apply_exit": proc.returncode,
