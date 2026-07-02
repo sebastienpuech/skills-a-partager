@@ -1,0 +1,17 @@
+{
+  "case_id": "EV7_antigaming_present",
+  "difficulte": "moyen",
+  "critique": {
+    "id": "HARN-507",
+    "fichier": "plan.md",
+    "section": "6. Signal de succès",
+    "passage_cite": "15 copies de référence notées par un enseignant",
+    "critique": "Vérification gamable : rien n'empêche le moteur de notation de voir les notes attendues et de les recopier. Pas d'anti-gaming.",
+    "gravite": "CRITIQUE"
+  },
+  "ground_truth": {
+    "verdict": "REJETÉE",
+    "raison": "Faux négatif : le §6 précise explicitement que le moteur tourne en environnement isolé, sans AUCUN accès aux notes attendues (essai aveugle), la comparaison se faisant après coup. L'anti-gaming est adressé ; la critique a raté cette phrase.",
+    "passage_qui_repond": "il n'a AUCUN accès aux notes attendues du golden set pendant l'essai (essai aveugle)"
+  }
+}

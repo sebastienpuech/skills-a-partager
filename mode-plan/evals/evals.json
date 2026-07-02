@@ -292,6 +292,20 @@
           "green": true
         }
       }
+    },
+    {
+      "id": "ensemble_aggregation_mechanism",
+      "script": "ensemble_verifiers.py",
+      "fixture_dir": "fixtures/ensemble_check",
+      "args": [
+        "--check"
+      ],
+      "expected": {
+        "exit_code": 0,
+        "json_match": {
+          "green": true
+        }
+      }
     }
   ]
 }
