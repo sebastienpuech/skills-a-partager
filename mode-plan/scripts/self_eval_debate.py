@@ -53,6 +53,7 @@ _AGENT_RULE_KEYS = (
     frozenset({"au_moins_une"}),
     frozenset({"aucun_trouve_sur"}),
     frozenset({"trouve_sur_ancre"}),
+    frozenset({"contient_biais", "gravite"}),
 )
 
 
@@ -143,6 +144,15 @@ def _pred_aucun_trouve_sur(defenseur_out: dict, critique_id: str) -> bool:
     return True
 
 
+def _pred_contient_biais(observateur_out: dict, biais_id: str, gravite: str) -> bool:
+    """S10 (finding #2) : ∃ biais détecté id==biais_id AVEC la gravité attendue,
+    dans la sortie de l'Observateur (schéma biais_detectes[], distinct des critics)."""
+    for b in observateur_out.get("biais_detectes", []):
+        if b.get("id") == biais_id and b.get("detecte") is True and b.get("gravite") == gravite:
+            return True
+    return False
+
+
 def _pred_trouve_sur_ancre(defenseur_out: dict, critique_id: str, sources: dict) -> bool:
     """S2 (HARN-003) : ∃ défense TROUVÉ sur la critique C dont la citation est ANCRÉE
     dans une source réelle (via verify_citations.is_anchored — PUR, pas d'I/O ici)."""
@@ -174,6 +184,9 @@ def eval_agent_rule(agent: str, rule: dict, outputs: dict, sources: dict):
     if keys == frozenset({"trouve_sur_ancre"}):
         ok = _pred_trouve_sur_ancre(out, rule["trouve_sur_ancre"], sources)
         return ok, f"{agent} : TROUVÉ ancré sur {rule['trouve_sur_ancre']}"
+    if keys == frozenset({"contient_biais", "gravite"}):
+        ok = _pred_contient_biais(out, rule["contient_biais"], rule["gravite"])
+        return ok, f"{agent} : biais {rule['contient_biais']} détecté en gravité {rule['gravite']}"
     return None, f"CONFIG_ERROR : clés {sorted(keys)} hors table de dispatch fermée"
 
 
