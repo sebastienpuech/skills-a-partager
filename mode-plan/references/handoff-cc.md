@@ -39,6 +39,7 @@ Le handoff devient : « copie le dossier du plan dans ton repo, commit, `cd` + o
 - `journal.md` — état actuel glissant + log daté (prévu/réalisé/divergence) ; se rejoue, ne se résume pas
 
 ## Discipline harnais (non négociable)
+- **100% Opus** : tous les agents/sous-agents de ce projet tournent sur le modèle de session (Opus). AUCUN downgrade Haiku/Sonnet — sous forfait Max (tarif à plat) c'est sans intérêt et ça dégrade la justesse. Ne jamais coder de `model:` non-Opus.
 - Sessions 1-2 : construire le harnais d'éval (golden set + assertions) AVANT les features.
 - Fin de CHAQUE session : re-run l'éval ; une feature n'est « done » que si elle passe de bout en bout.
 - git : workspace clean avant tout changement ; commit par session/sprint ; revert si régression.

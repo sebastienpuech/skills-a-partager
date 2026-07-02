@@ -169,3 +169,7 @@ Conséquence pour un plan : préférer une **mémoire fichier-résidente rejouab
 - Anthropic — *Effective context engineering for AI agents* (context-resets over compaction, just-in-time retrieval).
 - Cognition — *Multi-agents that work* (avr. 2026) — writer unique + rôles Planner/Generator/Evaluator.
 - Chroma — *Context Rot* (la compaction déplace le problème, ne le résout pas).
+
+### Politique modèle (forfait Max / Agent SDK)
+
+Sous un forfait à tarif plat (Agent SDK), les modèles coûtent pareil : un downgrade « cheap » (Haiku/Sonnet) n'économise rien et **dégrade la justesse** (mesuré — l'ensemble Haiku perd −0,125 vs Opus ; l'auto-cohérence Opus n'ajoute rien car les erreurs d'un modèle fort sont systématiques, pas stochastiques). **Règle** : tout agent ou sous-agent — dans mode-plan ET dans les skills/plans qu'il génère — tourne sur le modèle de session (Opus). Un plan qui code un `model:` non-Opus « pour économiser » est un anti-pattern (le `critic-harnais` peut le flaguer). Le levier n'est pas le modèle moins cher, c'est le harnais (H1–H9).

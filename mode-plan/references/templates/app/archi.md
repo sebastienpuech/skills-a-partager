@@ -70,6 +70,7 @@
 
 | Décision | Choix | Pourquoi | Alternative écartée |
 |----------|-------|----------|---------------------|
+| **Modèle des agents** | **Opus (modèle de session), 100% — aucun downgrade** | Forfait Max / Agent SDK = tarif à plat → un modèle « cheap » (Haiku/Sonnet) n'économise rien et dégrade la justesse (mesuré). Les sous-agents héritent du modèle de session. | Ensemble/routage cheap (rejeté au gate) |
 | Langage backend | ... | ... | ... |
 | DB | ... | ... | ... |
 | Hosting | ... | ... | ... |
