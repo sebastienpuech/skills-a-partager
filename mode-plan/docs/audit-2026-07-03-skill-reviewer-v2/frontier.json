@@ -1,0 +1,179 @@
+{
+  "degraded": false,
+  "sources_lues": [
+    "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+    "audit-mode-plan/web_results.json"
+  ],
+  "avertissements": [],
+  "consigne_si_degraded": "",
+  "entries": [
+    {
+      "claim": "H1 — Signal de succès : existe-t-il un golden set + des assertions (idéalement binaires) qui disent si une sortie est bonne, rejouables à chaque changement ? (`spec_produit.md`)",
+      "source": "harnais.md §Checklist H1",
+      "url": "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+      "id": "F-001"
+    },
+    {
+      "claim": "H2 — Vérification (fiable ET non-gamable) : la couche qui vérifie est-elle distincte de celle qui génère ? Vérifieur cheap quand la sortie n'est pas trivialement checkable ? Et surtout : le grader est-il **résistant au gaming** (essai isolé, pas de fuite des réponses attendues) ? Un signal de succès qu'on peut satisfaire sans faire le travail est pire que pas de signal. (`archi.md`, `spec_produit.md`)",
+      "source": "harnais.md §Checklist H2",
+      "url": "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+      "id": "F-002"
+    },
+    {
+      "claim": "H3 — Contexte : y a-t-il une stratégie explicite de budget de contexte (JIT, compaction, note-taking) plutôt que « tout charger » ? (`archi.md`)",
+      "source": "harnais.md §Checklist H3",
+      "url": "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+      "id": "F-003"
+    },
+    {
+      "claim": "H4 — Mémoire/état : comment l'état survit-il entre sessions/fenêtres ? Checkpoints + reprise après erreur ? (`archi.md` + `sessions_claude_code.md`)",
+      "source": "harnais.md §Checklist H4",
+      "url": "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+      "id": "F-004"
+    },
+    {
+      "claim": "H4b — Auto-amélioration (si type=skill) : le plan prévoit-il la boucle — signal rejouable + mémoire (interactions/issues/proposed_fixes) + moteur `skill-auto-improver` (commit/revert) + déclencheur planifié + garde-fou anti-gaming ? Absente pour un skill → **MAJEUR**. (`spec_produit.md` §11)",
+      "source": "harnais.md §Checklist H4b",
+      "url": "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+      "id": "F-005"
+    },
+    {
+      "claim": "H5 — Observabilité : peut-on savoir *pourquoi* un run a échoué (traces/artefacts), pas seulement *qu'il* a échoué ? (`archi.md`)",
+      "source": "harnais.md §Checklist H5",
+      "url": "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+      "id": "F-006"
+    },
+    {
+      "claim": "H6 — Garde-fous : budgets, timeouts, caps, HITL/sandbox sont-ils définis ? (`archi.md`)",
+      "source": "harnais.md §Checklist H6",
+      "url": "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+      "id": "F-007"
+    },
+    {
+      "claim": "H7 — Outils : set minimal, non-redondant, erreurs actionnables ? Chargement différé / exécution par code si gros jeu d'outils ? (`archi.md`)",
+      "source": "harnais.md §Checklist H7",
+      "url": "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+      "id": "F-008"
+    },
+    {
+      "claim": "H8 — Justification du fan-out : chaque multi-agent passe-t-il le test empirique (vs 1 appel fort) ? Les écritures sont-elles single-threaded ? Sinon, le simplifier. (`archi.md` §4)",
+      "source": "harnais.md §Checklist H8",
+      "url": "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+      "id": "F-009"
+    },
+    {
+      "claim": "H9 — Limites LLM spécifiques au domaine : le plan nomme-t-il ce que le modèle ne sait PAS faire de façon fiable *pour cette tâche précise* (au-delà des limites génériques H1–H8), chaque limite **classée** (contournable-ingénierie / structurel-IA-seule / irréductible), **contournée**, et **prouvée par un cas golden** ? Alimenté par `diagnostic-plafonds`. Absent pour un skill/agent non trivial → **MAJEUR**. (`spec_produit.md` §12bis)",
+      "source": "harnais.md §Checklist H9",
+      "url": "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+      "id": "F-010"
+    },
+    {
+      "claim": "Anthropic — *Effective context engineering for AI agents* (sept. 2025)",
+      "source": "harnais.md §Sources",
+      "url": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "id": "F-011"
+    },
+    {
+      "claim": "Anthropic — *Effective harnesses for long-running agents* (nov. 2025)",
+      "source": "harnais.md §Sources",
+      "url": "https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents",
+      "id": "F-012"
+    },
+    {
+      "claim": "Anthropic — *Writing tools for AI agents",
+      "source": "harnais.md §Sources",
+      "url": "https://www.anthropic.com/engineering/writing-tools-for-agents",
+      "id": "F-013"
+    },
+    {
+      "claim": "Anthropic — *Demystifying evals for AI agents* (jan. 2026) — split capability/regression, grade-the-output",
+      "source": "harnais.md §Sources",
+      "url": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "id": "F-014"
+    },
+    {
+      "claim": "Anthropic — *Code execution with MCP* (nov. 2025) — exécution par code, -98,7 % tokens",
+      "source": "harnais.md §Sources",
+      "url": "https://www.anthropic.com/engineering/code-execution-with-mcp",
+      "id": "F-015"
+    },
+    {
+      "claim": "Anthropic — *Advanced tool use* (nov. 2025) — Tool Search Tool (defer_loading), Programmatic Tool Calling",
+      "source": "harnais.md §Sources",
+      "url": "https://www.anthropic.com/engineering/advanced-tool-use",
+      "id": "F-016"
+    },
+    {
+      "claim": "Anthropic — *Emergent misalignment from reward hacking* (nov. 2025) — anti-gaming, inoculation prompting",
+      "source": "harnais.md §Sources",
+      "url": "https://www.anthropic.com/research/emergent-misalignment-reward-hacking",
+      "id": "F-017"
+    },
+    {
+      "claim": "Chroma — *Context Rot: How Increasing Input Tokens Impacts LLM Performance",
+      "source": "harnais.md §Sources",
+      "url": "https://www.trychroma.com/research/context-rot",
+      "id": "F-018"
+    },
+    {
+      "claim": "Débat *Don't Build Multi-Agents* (Cognition) vs *multi-agent research system* (Anthropic) — « la tâche choisit l'architecture »",
+      "source": "harnais.md §Sources",
+      "url": "https://news.smol.ai/issues/25-06-13-cognition-vs-anthropic",
+      "id": "F-019"
+    },
+    {
+      "claim": "Cognition — *Multi-agents that work* (avr. 2026) — règle du writer unique (writes single-threaded)",
+      "source": "harnais.md §Sources",
+      "url": "https://cognition.ai/blog/multi-agents-working",
+      "id": "F-020"
+    },
+    {
+      "claim": "Les méthodes de Multi-Agent Debate ne surpassent PAS systématiquement des stratégies mono-agent plus simples, même avec plus de calcul ; les designs actuels sous-exploitent le calcul additionnel (étude systématique de l'efficacité conditionnelle)",
+      "source": "Revisiting Multi-Agent Debate as Test-Time Scaling (arXiv 2505.22960)",
+      "url": "https://arxiv.org/pdf/2505.22960",
+      "id": "F-021"
+    },
+    {
+      "claim": "Le débat multi-agent est souvent redondant quand la sortie mono-agent est déjà correcte ; le déclenchement SÉLECTIF du débat (seulement sur les cas incertains) est plus efficient",
+      "source": "iMAD: Intelligent Multi-Agent Debate (arXiv 2511.11306)",
+      "url": "https://arxiv.org/pdf/2511.11306",
+      "id": "F-022"
+    },
+    {
+      "claim": "Pattern tournoi à la AI co-scientist : agents pour/contre en argumentation structurée + juge qui tranche + méta-review qui synthétise — architecture de critique structurée de référence pour les propositions de recherche/plans",
+      "source": "Towards Scientific Intelligence: A Survey of LLM-based Scientific Agents (arXiv 2503.24047)",
+      "url": "https://arxiv.org/pdf/2503.24047",
+      "id": "F-023"
+    },
+    {
+      "claim": "Plan-then-execute : fixer le plan d'avance donne une intégrité de flot de contrôle (durcit contre l'injection) ; le plan peut être encodé comme blueprint/code pour garantir l'adhérence procédurale",
+      "source": "Plan-then-Execute LLM Agents (Emergent Mind topic)",
+      "url": "https://www.emergentmind.com/topics/plan-then-execute-llm-agents",
+      "id": "F-024"
+    },
+    {
+      "claim": "La vérification ANCRÉE SUR L'EXÉCUTION (execution-grounded, sandbox obligatoire) devient un principe de premier ordre des frameworks d'ingénierie logicielle agentique",
+      "source": "AgentForge (arXiv 2604.13120)",
+      "url": "https://arxiv.org/html/2604.13120v1",
+      "id": "F-025"
+    },
+    {
+      "claim": "Ensembles de juges (3-5 modèles, vote majoritaire) : réduction des biais de 30-40 % pour un coût 3-5x — à réserver aux décisions à fort enjeu",
+      "source": "LLM as a Judge: A 2026 Guide (Label Your Data)",
+      "url": "https://labelyourdata.com/articles/llm-as-a-judge",
+      "id": "F-026"
+    },
+    {
+      "claim": "Les juges LLM sont vulnérables à des attaques triviales (un seul token peut retourner le verdict) et aux biais de position/verbosité/auto-complaisance — un juge non durci n'est pas un vérifieur fiable",
+      "source": "One Token to Fool LLM-as-a-Judge (arXiv 2507.08794)",
+      "url": "https://arxiv.org/pdf/2507.08794",
+      "id": "F-027"
+    },
+    {
+      "claim": "Boucle de critique croisée jusqu'à convergence entre 3 LLM (ICE) : jusqu'à +27 % d'accuracy vs mono-passe",
+      "source": "SCE/ICE — Scalable Consistency Ensembles (arXiv 2503.10881)",
+      "url": "https://arxiv.org/pdf/2503.10881",
+      "id": "F-028"
+    }
+  ]
+}

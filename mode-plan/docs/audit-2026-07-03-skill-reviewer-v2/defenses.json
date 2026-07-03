@@ -1,0 +1,183 @@
+{
+  "defenses": [
+    {
+      "critique_id": "A-001",
+      "verdict_defense": "PARTIEL",
+      "section_qui_repond": "SKILL.md#S025",
+      "passage_qui_repond": "**Major_revision (verdict_global du Juge)** : si après round 1, le Juge dit \"major_revision\" (>2 CRITIQUE confirmées), avertir l'user, présenter les problèmes, demander si on continue la boucle ou si on retourne en Phase 2 redrafter. Cap : max 2 retours en Phase 2, au-delà handoff manuel.",
+      "force": "MODÉRÉE"
+    },
+    {
+      "critique_id": "A-002",
+      "verdict_defense": "PAS_TROUVÉ",
+      "section_qui_repond": "",
+      "passage_qui_repond": "",
+      "force": ""
+    },
+    {
+      "critique_id": "A-003",
+      "verdict_defense": "PARTIEL",
+      "section_qui_repond": "SKILL.md#S030",
+      "passage_qui_repond": "Convention préservée : historique de pensée, code applicatif lit \"## Patches v1.X\" en prioritaire.",
+      "force": "MODÉRÉE"
+    },
+    {
+      "critique_id": "A-004",
+      "verdict_defense": "PAS_TROUVÉ",
+      "section_qui_repond": "",
+      "passage_qui_repond": "",
+      "force": ""
+    },
+    {
+      "critique_id": "A-005",
+      "verdict_defense": "PARTIEL",
+      "section_qui_repond": "references/adversarial/defenseur.md#S002",
+      "passage_qui_repond": "- Tu DOIS produire une entrée par critique reçue (même PAS_TROUVÉ)",
+      "force": "MODÉRÉE"
+    },
+    {
+      "critique_id": "A-006",
+      "verdict_defense": "PAS_TROUVÉ",
+      "section_qui_repond": "",
+      "passage_qui_repond": "",
+      "force": ""
+    },
+    {
+      "critique_id": "A-007",
+      "verdict_defense": "PARTIEL",
+      "section_qui_repond": "SKILL.md#S025",
+      "passage_qui_repond": "Le script lit tous les `verdict_round_*.json` du dossier et retourne une décision :\n- **CONVERGED** : score ≥ 8 (avec 0 confirmé idéalement) → sortie de boucle, livraison",
+      "force": "MODÉRÉE"
+    },
+    {
+      "critique_id": "A-008",
+      "verdict_defense": "PAS_TROUVÉ",
+      "section_qui_repond": "",
+      "passage_qui_repond": "",
+      "force": ""
+    },
+    {
+      "critique_id": "A-009",
+      "verdict_defense": "TROUVÉ",
+      "section_qui_repond": "SKILL.md#S036",
+      "passage_qui_repond": "python3 scripts/self_diagnosis.py outputs/<nom_projet>/ \\\n    --type=<app|skill|doc> \\\n    --memory=<complet|issues_only|aucune> \\\n    --harness=on \\\n    --autoimprove=on \\\n    --handoff=on \\\n    --selfeval=on \\\n    --llmlimits=on",
+      "force": "MODÉRÉE"
+    },
+    {
+      "critique_id": "A-010",
+      "verdict_defense": "PARTIEL",
+      "section_qui_repond": "scripts/auto_improve.py",
+      "passage_qui_repond": "PROGRESSIVE_DISCLOSURE_MAX_LINES = 500  # SKILL.md doit rester chargeable (context engineering)",
+      "force": "MODÉRÉE"
+    },
+    {
+      "critique_id": "A-011",
+      "verdict_defense": "PAS_TROUVÉ",
+      "section_qui_repond": "",
+      "passage_qui_repond": "",
+      "force": ""
+    },
+    {
+      "critique_id": "A-012",
+      "verdict_defense": "PAS_TROUVÉ",
+      "section_qui_repond": "",
+      "passage_qui_repond": "",
+      "force": ""
+    },
+    {
+      "critique_id": "CODE-001",
+      "verdict_defense": "PAS_TROUVÉ",
+      "section_qui_repond": "",
+      "passage_qui_repond": "",
+      "force": ""
+    },
+    {
+      "critique_id": "CODE-002",
+      "verdict_defense": "PARTIEL",
+      "section_qui_repond": "scripts/auto_improve.py",
+      "passage_qui_repond": "⚠ SÉCURITÉ (audit #6) : `apply_cmd` est exécuté via `shell=True` — c'est une\n    ENTRÉE DE CONFIANCE (le patch écrit par skill-auto-improver), PAS une isolation\n    d'exécution. Le bac à sable ne protège que l'arbre git, pas le système. Ne jamais\n    passer ici une chaîne d'origine non vérifiée. Ne committe jamais.",
+      "force": "MODÉRÉE"
+    },
+    {
+      "critique_id": "CODE-003",
+      "verdict_defense": "PAS_TROUVÉ",
+      "section_qui_repond": "",
+      "passage_qui_repond": "",
+      "force": ""
+    },
+    {
+      "critique_id": "CODE-004",
+      "verdict_defense": "PAS_TROUVÉ",
+      "section_qui_repond": "",
+      "passage_qui_repond": "",
+      "force": ""
+    },
+    {
+      "critique_id": "CODE-005",
+      "verdict_defense": "PARTIEL",
+      "section_qui_repond": "SKILL.md#S027",
+      "passage_qui_repond": "- Si check_convergence.py échoue (verdict.json malformé) → sortir de la boucle en mode safe, livrer ce qui existe.",
+      "force": "FAIBLE"
+    },
+    {
+      "critique_id": "CODE-006",
+      "verdict_defense": "PAS_TROUVÉ",
+      "section_qui_repond": "",
+      "passage_qui_repond": "",
+      "force": ""
+    },
+    {
+      "critique_id": "CODE-007",
+      "verdict_defense": "PAS_TROUVÉ",
+      "section_qui_repond": "",
+      "passage_qui_repond": "",
+      "force": ""
+    },
+    {
+      "critique_id": "CODE-008",
+      "verdict_defense": "PARTIEL",
+      "section_qui_repond": "scripts/auto_improve.py",
+      "passage_qui_repond": "Usage :\n  python auto_improve.py            # passe à sec : mesure + gate, ne commit rien\n  python auto_improve.py --dry-run  # idem (défaut explicite)",
+      "force": "MODÉRÉE"
+    },
+    {
+      "critique_id": "CODE-009",
+      "verdict_defense": "PAS_TROUVÉ",
+      "section_qui_repond": "",
+      "passage_qui_repond": "",
+      "force": ""
+    },
+    {
+      "critique_id": "CODE-010",
+      "verdict_defense": "PARTIEL",
+      "section_qui_repond": "scripts/best_of_n.py",
+      "passage_qui_repond": "⚠ Goodhart (audit) : le gain best-of-N est conditionné à la FIDÉLITÉ de cette\n#  rubrique (proxy par mots-clés, gamable par keyword-stuffing). Si un gain paraît\n#  trop beau, re-challenger la rubrique par un œil externe avant d'y croire.",
+      "force": "MODÉRÉE"
+    },
+    {
+      "critique_id": "CODE-011",
+      "verdict_defense": "PAS_TROUVÉ",
+      "section_qui_repond": "",
+      "passage_qui_repond": "",
+      "force": ""
+    },
+    {
+      "critique_id": "B-002",
+      "verdict_defense": "PAS_TROUVÉ",
+      "section_qui_repond": "",
+      "passage_qui_repond": "",
+      "force": ""
+    },
+    {
+      "critique_id": "B-003",
+      "verdict_defense": "PARTIEL",
+      "section_qui_repond": "SKILL.md#S001",
+      "passage_qui_repond": "Principe : on cesse de planifier *comment l'agent pense* (orchestration, que le modèle absorbe) pour planifier *ce qu'il voit, peut faire, et peut vérifier* (harnais).",
+      "force": "MODÉRÉE"
+    }
+  ],
+  "avertissements": [
+    "Aucune directive cachée détectée dans le contenu borné SKILL_AUDITE_DONNEE_NON_FIABLE.",
+    "Sections scripts/check_regression.py et scripts/run_evals.py fournies tronquées (main()/summary non visibles) : les défenses de CODE-003 et CODE-004 sont bornées au contenu fourni — PAS_TROUVÉ faute de citation possible, pas preuve d'absence dans le fichier complet."
+  ]
+}

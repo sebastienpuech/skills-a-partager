@@ -1,0 +1,102 @@
+{
+  "verdict": {
+    "execution_score": 7.1,
+    "cadrage_verdict": "steelman_tient",
+    "tension": false
+  },
+  "score_global": 7.1,
+  "top_ameliorations": [
+    {
+      "titre": "Politique fail-closed sur les 5 scripts-vérifieurs (artefact manquant/vide = échec explicite, jamais PASS/1.0)",
+      "finding_ids": ["CODE-001", "CODE-003", "CODE-004", "CODE-005", "CODE-006", "A-009"],
+      "justification": "Cause racine transverse unique : hold-out d'auto_improve neutralisable en silence (CRITIQUE, gate COMMIT/REVERT), check_regression PASS sur fichiers absents, run_evals 0/0 exit 0, check_convergence NO_ISSUES sur stats absentes, verify_citations taux_ancrage=1.0 sans citation. Statuts dédiés : HOLDOUT_MISSING, MISSING_FILES, NO_CASES, STATS_MISSING, NO_CITATIONS + trace quand un gate C10-C14 est sauté. Tant que les vérifieurs passent au vert sur du vide, toutes les autres garanties du skill sont conditionnelles.",
+      "effort": "quick-win",
+      "handoff": "manuel"
+    },
+    {
+      "titre": "Supprimer shell=True sur apply_cmd (argv liste) ou exiger confirmation humaine",
+      "finding_ids": ["CODE-002"],
+      "justification": "apply_cmd vient d'une sortie LLM (skill-auto-improver) requalifiée a tort en entree de confiance ; bandit B602 HIGH/HIGH. Documenter le risque n'est pas le fermer.",
+      "effort": "quick-win",
+      "handoff": "manuel"
+    },
+    {
+      "titre": "Gate de livraison deterministe : major_revision sans round 2 => banniere obligatoire, et .mode-plan/ exige dans les livrables",
+      "finding_ids": ["A-001", "A-002"],
+      "justification": "L'output reel frontier-kb a ete livre apres round 1 seul sur verdict major_revision, sans banniere ni trace ; les statistiques affirmees sont inverifiables ex post faute de .mode-plan/ livre. Alternative deterministe au multi-agent : un check script sur les fichiers livres.",
+      "effort": "<1j",
+      "handoff": "skill-creator-v12"
+    },
+    {
+      "titre": "Resorber la derive 3-vs-4 critics, rendre la table verdict_global exclusive, verifier le format patch par regex dans C7",
+      "finding_ids": ["A-005", "A-007", "A-004", "A-006"],
+      "justification": "Coherence des contrats inter-agents (axe 6 = 6) : schemas d'entree partiellement faux pour chaque sous-agent, verdict du Juge non deterministe (regles OU chevauchantes), contrat append-only non applique dans l'output reel skill-reviewer-v2 (C7 ne verifie que l'existence de la section Patches). Correctif = prompts plus contraignants + regex, aucun agent ajoute.",
+      "effort": "<1j",
+      "handoff": "skill-creator-v12"
+    },
+    {
+      "titre": "Lint de faisabilite deterministe avant livraison (capacites outillage des scripts planifies, premisses des golden cases)",
+      "finding_ids": ["A-001"],
+      "justification": "Plafond residuel de la Lentille B (P-002) : la Debate Room evalue le texte, pas la correspondance au monde — les 3 divergences reelles observees etaient invisibles au debat rhetorique. 'Ne code rien' n'interdit pas les checks deterministes : le lint s'ajoute sans changer l'architecture.",
+      "effort": ">1j",
+      "handoff": "skill-creator-v12"
+    },
+    {
+      "titre": "Bornes 'donnee non fiable' + consigne anti-injection sur les plans externes en iterate_existing",
+      "finding_ids": ["A-008"],
+      "justification": "Le skill impose ce mecanisme dans les plans qu'il produit mais ne l'applique pas a ses propres entrees externes. Risque faible en mono-utilisateur, correction triviale, coherence doctrinale.",
+      "effort": "quick-win",
+      "handoff": "skill-creator-v12"
+    }
+  ],
+  "plafonds": [
+    {
+      "id": "P-001",
+      "classe": "contournable-ingénierie",
+      "contournement": "Politique fail-closed uniforme sur les vérifieurs + 1 test d'absence d'artefact par script (supprimer l'artefact requis, exiger l'échec) — vérifieur déterministe, pas de multi-agent",
+      "handoff": "manuel",
+      "evidence": {
+        "citation": "\"holdout\": _score_capability(HOLDOUT_DIR) if HOLDOUT_DIR.is_dir() else 1.0,",
+        "section_id": "scripts/auto_improve.py"
+      },
+      "golden_case": null
+    },
+    {
+      "id": "P-002",
+      "classe": "contournable-ingénierie",
+      "contournement": "Lint de faisabilité déterministe (capacités outillage, prémisses des golden cases) + renforcement du critic-simulateur ; le harnais installé par le plan reste le filet à l'implémentation",
+      "handoff": "skill-creator-v12",
+      "evidence": {
+        "citation": "CONTINUE : appliquer patches du round courant […] puis R++ et retour à 3.1",
+        "section_id": "SKILL.md#S025"
+      },
+      "golden_case": null
+    },
+    {
+      "id": "P-003",
+      "classe": "contournable-ingénierie",
+      "contournement": "Gates déterministes sur les LIVRABLES : bannière ⚠ exigée si major_revision sans round 2, format patch vérifié par regex (pas seulement l'existence de la section), dossier .mode-plan/ livré obligatoire — circuit-breaker script, pas de discipline LLM déclarative",
+      "handoff": "skill-creator-v12",
+      "evidence": {
+        "citation": "### Patch [gravité] — [sujet] **Diagnostic** : <raisonnement du Juge> **Source** : Critique <ID> (angle: <archi|prag|sim>)",
+        "section_id": "SKILL.md#S030"
+      },
+      "golden_case": null
+    }
+  ],
+  "mecanismes_gardes": [
+    {
+      "description": "verify_citations : vérificateur déterministe 0-LLM qui double le Juge et rétrograde ses verdicts non ancrés — le bon pattern, à conserver (seul son fail-open est à corriger)",
+      "section_id": "scripts/verify_citations.py"
+    },
+    {
+      "description": "Défenseur anti-patchwork : une entrée par critique reçue (même PAS_TROUVÉ), répond à un mode d'échec mesuré (bruit append-only) ; a joué son rôle dans cet audit (5 PARTIEL, 1 TROUVÉ)",
+      "section_id": "references/adversarial/defenseur.md#S002"
+    },
+    {
+      "description": "self_diagnosis multi-gates C1-C14 : couche de vérification déterministe post-génération extensible par flags — principe gardé, seule l'activation opt-in silencieuse est à durcir",
+      "section_id": "SKILL.md#S036"
+    }
+  ],
+  "risque_principal_non_couvert": "Un patch écrit par LLM et appliqué via --sandbox-apply peut supprimer ou renommer evals/selfeval/_holdout/ : le gate anti-gaming d'auto_improve (celui qui décide COMMIT/REVERT) passe alors à 1.0 sans rien mesurer, et aucun autre contrôle ne détecte l'absence de l'artefact — le mécanisme de self-improvement peut se dé-vérifier lui-même en silence."
+}

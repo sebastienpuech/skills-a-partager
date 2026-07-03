@@ -1,0 +1,159 @@
+{
+  "lens": "A",
+  "mode": "A",
+  "findings": [
+    {
+      "id": "A-001",
+      "lens": "A",
+      "axe": 1,
+      "severity": "IMPORTANT",
+      "description": "Le plan frontier-kb a été livré après le round 1 seul alors que le verdict enregistré est major_revision (journal.md : « Juge (19 confirmée/0 rejetée/4 partielle, major_revision) », score aligné 4,45) — la boucle promise (CONTINUE si score < 8, warning si sortie non convergée) n'a ni round 2 ni bannière ⚠ dans les fichiers livrés. Le plan livré est donc potentiellement sous-challengé par rapport au contrat de l'Étape 3.5/3.7. Constat sur output réel : <HOME>\\dev\\<depot-prive>\\recherche-ia\\skills\\frontier-kb\\journal.md.",
+      "evidence": {"citation": "CONTINUE : appliquer patches du round courant […] puis R++ et retour à 3.1 / Si la boucle est en MAX_ITERATIONS avec score < 6 → […] warning explicite en haut de chaque fichier", "section_id": "SKILL.md#S025"},
+      "verified": "exécuté",
+      "source_frontier": null
+    },
+    {
+      "id": "A-002",
+      "lens": "A",
+      "axe": 1,
+      "severity": "IMPORTANT",
+      "description": "Les statistiques affirmées dans les deux livrables (« 19 confirmées, score 4,45 » ; « 22 patchs foldés, 2 rejetés » ; « 17 confirmées (2 CRITIQUE) ») sont invérifiables ex post : aucun dossier .mode-plan/ (critiques_R, defenses_R, verdict_round_R, citations_report) n'accompagne les dossiers livrés frontier-kb ni skill-reviewer-v2. Cela contredit la promesse d'observabilité du skill (artefacts intermédiaires conservés, run rejouable).",
+      "evidence": {"citation": "Créer le dossier outputs/<nom_projet>/.mode-plan/ pour les artefacts intermédiaires.", "section_id": "SKILL.md#S020"},
+      "verified": "exécuté",
+      "source_frontier": null
+    },
+    {
+      "id": "A-003",
+      "lens": "A",
+      "axe": 1,
+      "severity": "MINEUR",
+      "description": "Incohérences internes résiduelles dans frontier-kb dues à l'append-only : archi.md §6 liste « evals/ (G1,G4,G5 V1-core) » alors que le patch du spec définit V1-core = {G1, G4, G5, G8} ; le §10bis garde l'assertion supersession (G3) alors que le patch repousse la supersession en V2. Un exécuteur de session qui lit le corps sans prioriser les patches peut câbler le mauvais périmètre.",
+      "evidence": {"citation": "Convention préservée : historique de pensée, code applicatif lit \"## Patches v1.X\" en prioritaire.", "section_id": "SKILL.md#S030"},
+      "verified": "exécuté",
+      "source_frontier": null
+    },
+    {
+      "id": "A-004",
+      "lens": "A",
+      "axe": 6,
+      "severity": "IMPORTANT",
+      "description": "L'output réel skill-reviewer-v2 dévie du contrat documenté de Phase 4 : fichiers marqués « v2 CONSOLIDÉE (Debate Room round 1 intégrée) » (réécriture) au lieu de patches append-only, et aucun bloc patch ne suit le template Diagnostic/Source/Modification imposé par l'Étape 4.1. Les instructions append-only ne sont donc pas assez contraignantes en pratique et aucune gate (C7 se contente de l'existence d'une section Patches) ne détecte la déviation.",
+      "evidence": {"citation": "### Patch [gravité] — [sujet] **Diagnostic** : <raisonnement du Juge> **Source** : Critique <ID> (angle: <archi|prag|sim>)", "section_id": "SKILL.md#S030"},
+      "verified": "exécuté",
+      "source_frontier": null
+    },
+    {
+      "id": "A-005",
+      "lens": "A",
+      "axe": 6,
+      "severity": "IMPORTANT",
+      "description": "Dérive 3-vs-4 critics non résorbée depuis v3.3 : la table des références dit « Merge des 3 critiques », les anti-patterns disent « TOUJOURS un seul message multi-tool-call pour les 3 », l'Étape 3.7 dit « continuer avec les 2 autres », le template de patch énumère angle ∈ <archi|prag|sim>, et defenseur.md documente un input dont l'enum d'IDs/angles exclut HARN/harnais alors que les runs réels produisent des HARN-xxx. Chaque sous-agent reçoit donc un schéma d'entrée partiellement faux. Ajustement cross-check : axe 6 abaissé de 7 à 6 — ces incohérences touchent les contrats d'input des agents, pas seulement la prose.",
+      "evidence": {"citation": "\"id\": \"ARCH-001\" | \"PRAG-001\" | \"SIM-001\", \"angle\": \"architecte\" | \"pragmatiste\" | \"simulateur\"", "section_id": "references/adversarial/defenseur.md#S002"},
+      "verified": "non-vérifié",
+      "source_frontier": null
+    },
+    {
+      "id": "A-006",
+      "lens": "A",
+      "axe": 6,
+      "severity": "MINEUR",
+      "description": "Défauts textuels : puce cassée/tronquée ligne 481 du SKILL.md (« **Ne jamais ré générer le 4e. » — gras non fermé, phrase incomplète doublonnant la puce précédente) et coquille « tu trancles » dans le prompt du Juge. Mineur mais dans des zones lues par des sous-agents.",
+      "evidence": {"citation": "**Ne jamais ré générer le 4e.", "section_id": "SKILL.md#S039"},
+      "verified": "non-vérifié",
+      "source_frontier": null
+    },
+    {
+      "id": "A-007",
+      "lens": "A",
+      "axe": 6,
+      "severity": "IMPORTANT",
+      "description": "La table de décision verdict_global du Juge est non exclusive et contradictoire : un score 9 avec 0 CRITIQUE satisfait à la fois « go » et « patch_required » (score ≥ 5 OU une CONFIRMÉE CRITIQUE) ; un score 4 avec 1 CRITIQUE satisfait à la fois « patch_required » et « major_revision ». L'arbitre central du workflow repose sur des règles OU chevauchantes, donc un verdict_global non déterministe selon l'ordre d'évaluation du LLM.",
+      "evidence": {"citation": "score_convergence ≥ 5 OU au moins une CONFIRMÉE CRITIQUE → \"patch_required\" / score_convergence < 5 OU 3+ CONFIRMÉES CRITIQUES → \"major_revision\"", "section_id": "references/adversarial/juge.md#S002"},
+      "verified": "non-vérifié",
+      "source_frontier": null
+    },
+    {
+      "id": "A-008",
+      "lens": "A",
+      "axe": 3,
+      "severity": "MINEUR",
+      "description": "Le mode iterate_existing ingère des fichiers de plan externes et les passe aux critics/Défenseur/Juge sans isolation « donnée non fiable » (pas de bornes, pas de consigne anti-injection dans les prompts adversariaux) — alors que le plan que mode-plan a produit pour skill-reviewer-v2 impose précisément ce mécanisme. Risque faible en usage mono-utilisateur local, mais l'écart avec sa propre doctrine est notable.",
+      "evidence": {"citation": "Si Q2 = plan existant : lire les 3 fichiers fournis, skipper le draft, passer en Phase 3.", "section_id": "SKILL.md#S018"},
+      "verified": "non-vérifié",
+      "source_frontier": null
+    },
+    {
+      "id": "A-009",
+      "lens": "A",
+      "axe": 3,
+      "severity": "MINEUR",
+      "description": "Les gates C10–C14 sont des flags opt-in (off par défaut côté script pour rétro-compatibilité des evals) : si l'agent orchestrateur omet un flag à l'Étape 4.5, le check saute silencieusement — rien ne vérifie que les flags passés correspondent au type du projet (ex. type=skill sans --llmlimits=on passe FAIL→PASS sans trace).",
+      "evidence": {"citation": "C14 (v4.1, si `--llmlimits=on` ET type=skill/agent) […] Off par défaut → evals inchangées.", "section_id": "SKILL.md#S036"},
+      "verified": "non-vérifié",
+      "source_frontier": null
+    },
+    {
+      "id": "A-010",
+      "lens": "A",
+      "axe": 4,
+      "severity": "MINEUR",
+      "description": "SKILL.md fait 501 lignes (~9 700 tokens estimés), au-dessus de la cible < 500 lignes / < 5 000 tokens, alors que _mode-plan-meta/issues.md marque ce point « ✅ RÉSOLU (v4.1) ». La progressive disclosure est par ailleurs bien réelle (références à la demande, notes/historique externalisés), donc impact modéré.",
+      "evidence": {"citation": "2026-07-01 — SKILL.md > 500 lignes (progressive disclosure) — ✅ RÉSOLU", "section_id": "_mode-plan-meta/issues.md#S005"},
+      "verified": "non-vérifié",
+      "source_frontier": null
+    },
+    {
+      "id": "A-011",
+      "lens": "A",
+      "axe": 5,
+      "severity": "MINEUR",
+      "description": "Le fallback « critic sans réponse après ~3 min → continuer avec les 2 autres [sic] » n'a aucun mécanisme d'application : l'agent orchestrateur ne dispose pas d'un timer sur les spawns Task, donc ce garde-fou déclaré repose sur une capacité que le LLM n'a pas. Les autres chemins dégradés (JSON malformé, fallback composite, verdict illisible) sont eux bien câblés.",
+      "evidence": {"citation": "Si un critic ne répond pas après ~3 min → continuer avec les 2 autres", "section_id": "SKILL.md#S027"},
+      "verified": "non-vérifié",
+      "source_frontier": null
+    },
+    {
+      "id": "A-012",
+      "lens": "A",
+      "axe": 8,
+      "severity": "MINEUR",
+      "description": "Description par ailleurs exemplaire (998 caractères < 1024, phrasing impératif, périmètre négatif explicite, désambiguïsation vis-à-vis de pipeline-plafonds), mais les déclencheurs génériques « fais-moi un plan, on planifie d'abord, avant de coder » entrent en collision directe avec superpowers:writing-plans et superpowers:brainstorming présents dans le même environnement — le routage entre ces trois skills n'est arbitré nulle part.",
+      "evidence": {"citation": "faire un plan d'attaque, planifier un développement multi-sessions […] fais-moi un plan, on planifie d'abord, avant de coder", "section_id": "SKILL.md#S001"},
+      "verified": "non-vérifié",
+      "source_frontier": null
+    },
+    {
+      "id": "A-013",
+      "lens": "A",
+      "axe": 10,
+      "severity": "RAS",
+      "description": "Techniques au niveau frontière — fan-out justifié par ablation H8 datée, adoption gates mesurées (best-of-N +0,11 adopté, ensemble de vérifieurs rejeté sur mesure), vérification déterministe des citations qui durcit le Juge contre ses vulnérabilités connues (source_frontier F-027) ; seul écart marginal : pas de déclenchement sélectif du débat sur les cas incertains (source_frontier F-022).",
+      "evidence": {"citation": "Étape 3.4bis — Vérification des citations (v4.0, Python, déterministe)", "section_id": "SKILL.md#S024"},
+      "verified": "non-vérifié",
+      "source_frontier": "F-022"
+    },
+    {
+      "id": "A-014",
+      "lens": "A",
+      "axe": 2,
+      "severity": "RAS",
+      "description": "Les deux plans livrés couvrent tout ce que le SKILL.md promet : harnais H1–H9 (§10bis + §4bis + §12bis avec limites classées et cas golden), golden sets should-fire/should-not-fire avec split capability/regression, mémoire/auto-amélioration positionnée, sessions self-contained (règle de fer + Reset contexte + vérifications + commit), CLAUDE.md et journal.md présents dans les deux dossiers.",
+      "evidence": {"citation": "spec_produit.md §10bis (golden set + assertions = signal de succès, H1) et archi.md §4bis (Couche Harnais, H2–H7)", "section_id": "SKILL.md#S015"},
+      "verified": "exécuté",
+      "source_frontier": null
+    },
+    {
+      "id": "A-015",
+      "lens": "A",
+      "axe": 7,
+      "severity": "RAS",
+      "description": "Le pattern d'exécution est adapté à la complexité : lectures critiques parallèles + Défenseur/Juge séquentiels + glue déterministe (merge, convergence, citations, diagnosis en Python 0-LLM), writer unique, phase adversariale précisément là où les faux négatifs coûtent cher, et fan-out validé empiriquement plutôt que par principe.",
+      "evidence": {"citation": "3.2 SCRIPT : align_critiques.py […] 3.5 SCRIPT : check_convergence.py → décision", "section_id": "SKILL.md#S019"},
+      "verified": "non-vérifié",
+      "source_frontier": null
+    }
+  ],
+  "scores": {"axe_1": 7, "axe_2": 8, "axe_3": 7, "axe_4": 7, "axe_5": 7,
+             "axe_6": 6, "axe_7": 8, "axe_8": 7, "axe_10": 8},
+  "degraded": false
+}
