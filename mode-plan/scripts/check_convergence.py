@@ -41,7 +41,13 @@ def find_verdict_rounds(work_dir):
 def load_round(path):
     """Load a verdict_round_N.json, return dict with score + confirmed counts."""
     data = json.loads(path.read_text(encoding="utf-8"))
-    stats = data.get("statistiques", {})
+    stats = data.get("statistiques")
+    # Fail-closed (audit 2026-07-03, CODE-005) : bloc statistiques ABSENT (dérive de
+    # schéma d'agent) ≠ « 0 confirmée » — sinon NO_ISSUES conclut « deliver » à tort
+    # sur un artefact vide. Statut dédié STATS_MISSING, décidé en priorité 0.
+    if not isinstance(stats, dict):
+        return {"stats_missing": True, "fichier": path.name,
+                "global_verdict": data.get("verdict_global", "unknown")}
     clamped = float(stats.get("score_convergence", 0))
     return {
         "score": clamped,
@@ -65,6 +71,15 @@ def decide(rounds, max_iterations, threshold, plateau_delta):
         }
     last = rounds[-1]
     n_rounds = len(rounds)
+
+    # Priority 0 : verdict sans bloc statistiques -> jamais un deliver
+    if last.get("stats_missing"):
+        return {
+            "decision": "STATS_MISSING",
+            "reason": f"{last.get('fichier', 'verdict')} : bloc 'statistiques' absent — "
+                      "dérive de schéma du Juge ; régénérer le verdict avant de conclure.",
+            "rounds_run": n_rounds,
+        }
 
     # Priority 1 : converged
     if last["score"] >= threshold and last["confirmed"] == 0:

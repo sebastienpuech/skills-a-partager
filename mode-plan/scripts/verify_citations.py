@@ -135,12 +135,21 @@ def build_report(sources: dict[str, str], agent_outputs: dict) -> dict:
                 "action": cit["action_si_non_ancre"],
             })
     total = len(citations)
-    return {
+    report = {
         "total_citations": total,
         "ancrees": ancrees,
         "non_ancrees": non_ancrees,
-        "taux_ancrage": round(ancrees / total, 4) if total else 1.0,
+        # Fail-closed (audit 2026-07-03, CODE-006) : 0 citation collectée n'est PAS
+        # un ancrage parfait — artefacts manquants, noms de fichiers qui ne matchent
+        # pas, ou dérive de schéma des sorties d'agents. Taux null + statut dédié.
+        "taux_ancrage": round(ancrees / total, 4) if total else None,
     }
+    if total == 0:
+        report["status"] = "NO_CITATIONS"
+        report["note"] = ("aucune citation collectée — vérifier la présence de recorded/ "
+                          "ou .mode-plan/ et le schéma des sorties d'agents ; un score "
+                          "parfait sur artefacts absents serait un faux PASS.")
+    return report
 
 
 # --------------------------------------------------------------------------- #
@@ -226,6 +235,9 @@ def main() -> int:
           file=sys.stderr)
     # Exit 0 : le rapport est produit. Le downgrade est une ACTION consommée en aval,
     # pas un échec de script (les non-ancrées sont attendues et gérées).
+    # Exception fail-closed : 0 citation collectée = exit 2 (artefacts manquants).
+    if report.get("status") == "NO_CITATIONS":
+        return 2
     return 0
 
 

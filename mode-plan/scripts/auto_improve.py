@@ -26,6 +26,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -67,15 +68,26 @@ def _regression_rate() -> float:
 
 def measure() -> dict:
     """Les 3 métriques du gate."""
-    return {
+    m = {
         "capability": _score_capability(SELFEVAL_DIR),
         "regression": _regression_rate(),
-        "holdout": _score_capability(HOLDOUT_DIR) if HOLDOUT_DIR.is_dir() else 1.0,
     }
+    # Fail-closed (audit 2026-07-03, CODE-001) : hold-out absent = HOLDOUT_MISSING,
+    # JAMAIS 1.0 par défaut — sinon un patch qui supprime/renomme _holdout/ neutralise
+    # le gate anti-gaming en silence, dans le vérifieur même qui décide COMMIT/REVERT.
+    if HOLDOUT_DIR.is_dir():
+        m["holdout"] = _score_capability(HOLDOUT_DIR)
+    else:
+        m["holdout"] = None
+        m["holdout_status"] = "HOLDOUT_MISSING"
+    return m
 
 
 def gate(baseline: dict, candidate: dict) -> tuple[bool, str]:
     """COMMIT ssi capability↑ strict ET regression==1.0 ET holdout==1.0 (spec §11)."""
+    if candidate.get("holdout") is None:
+        return False, ("HOLDOUT_MISSING : evals/selfeval/_holdout/ absent ou supprimé "
+                       "-> REVERT (fail-closed, le gate ne se mesure pas sans hold-out)")
     if candidate["capability"] <= baseline["capability"]:
         return False, (f"capability {candidate['capability']} <= baseline "
                        f"{baseline['capability']} (pas d'amélioration) -> NO_COMMIT")
@@ -101,6 +113,7 @@ def run_gate_check() -> dict:
         ("capability en baisse", {"capability": 0.70, "regression": 1.0, "holdout": 1.0}, False),
         ("régression evals (reg<1.0)", {"capability": 0.90, "regression": 0.95, "holdout": 1.0}, False),
         ("hold-out cassé (gaming/overfit)", {"capability": 0.95, "regression": 1.0, "holdout": 0.5}, False),
+        ("hold-out ABSENT (dossier supprimé)", {"capability": 0.95, "regression": 1.0, "holdout": None}, False),
     ]
     results = []
     for nom, cand, expected in scenarios:
@@ -128,16 +141,22 @@ def sandboxed_apply(apply_cmd: str) -> dict:
     (`git clean -fd`, non-ignorés) — sinon un patch qui *ajoute* un fichier régressif
     survivrait au revert.
 
-    ⚠ SÉCURITÉ (audit #6) : `apply_cmd` est exécuté via `shell=True` — c'est une
-    ENTRÉE DE CONFIANCE (le patch écrit par skill-auto-improver), PAS une isolation
-    d'exécution. Le bac à sable ne protège que l'arbre git, pas le système. Ne jamais
-    passer ici une chaîne d'origine non vérifiée. Ne committe jamais.
+    ⚠ SÉCURITÉ (audit 2026-07-03, CODE-002) : `apply_cmd` vient de skill-auto-improver,
+    c'est-à-dire d'une SORTIE LLM — jamais une entrée de confiance. Exécution en argv
+    strict (`shell=False`) ; les métacaractères shell (&&, |, ;, redirections) sont
+    REFUSÉS avec un statut explicite : une commande composite doit être découpée en
+    invocations simples. Le bac à sable ne protège que l'arbre git, pas le système.
+    Ne committe jamais.
     """
+    if any(tok in apply_cmd for tok in ("&&", "||", "|", ";", ">", "<", "`", "$(")):
+        return {"status": "APPLY_REFUSED_SHELL_META", "apply_cmd": apply_cmd,
+                "note": "métacaractères shell refusés (sortie LLM exécutée sans shell) — "
+                        "découper en commandes simples et relancer une par une."}
     dirty = _git("status", "--porcelain", "--", ".").stdout.strip()
     if dirty:
         return {"error": "SANDBOX_REQUIERT_ARBRE_PROPRE", "dirty": dirty.splitlines()[:10]}
     baseline = measure()
-    proc = subprocess.run(apply_cmd, shell=True, cwd=str(SKILL_ROOT),
+    proc = subprocess.run(shlex.split(apply_cmd), shell=False, cwd=str(SKILL_ROOT),
                           capture_output=True, text=True, encoding="utf-8")
     # Audit #B : si l'application échoue (apply_exit != 0 — ex. syntaxe shell non
     # portable), NE PAS mesurer/juger. Une panne d'application ≠ « la techno n'aide

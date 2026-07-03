@@ -178,9 +178,19 @@ def check_patches_appended(project_dir):
         path = project_dir / fname
         if not path.is_file():
             continue
-        if re.search(r"##\s+Patches\s+stratégiques\s+v\d+\.\d+",
-                     path.read_text(encoding="utf-8")):
+        content = path.read_text(encoding="utf-8")
+        if re.search(r"##\s+Patches\s+stratégiques\s+v\d+\.\d+", content):
             found = True
+            # Durcissement C7 (audit 2026-07-03, A-004) : l'existence de la section
+            # ne suffit pas — au moins un bloc au template Diagnostic/Source/
+            # Modification doit exister, sinon le format append-only n'est pas tenu.
+            if not (re.search(r"\*\*Diagnostic\*\*\s*:", content)
+                    and re.search(r"\*\*Modification\*\*\s*:", content)):
+                fails.append(
+                    f"C7: {fname} a une section Patches stratégiques mais aucun bloc "
+                    "au template (**Diagnostic** : / **Modification** :) — patches "
+                    "réécrits au lieu d'append-only ?"
+                )
             break
     if not found:
         confirmed = sum(1 for v in data.get("verdicts", [])
@@ -368,8 +378,41 @@ def check_c14_llm_limits(project_dir, type_projet):
     return []
 
 
+def check_delivery_gate(project_dir):
+    """C15 (audit 2026-07-03, A-001/A-002, gated by --delivery=on) : livraison conforme.
+
+    - `.mode-plan/` accompagne le dossier livré (sinon les statistiques affirmées dans
+      les livrables — « N confirmées, score X » — sont invérifiables ex post).
+    - Si le DERNIER verdict est `major_revision` : bannière ⚠ exigée en tête des
+      fichiers livrés (trace du choix utilisateur de livrer sans round supplémentaire).
+    """
+    mp = project_dir / ".mode-plan"
+    if not mp.is_dir():
+        return ["C15: .mode-plan/ absent du dossier livré — critiques/verdicts/stats "
+                "invérifiables ex post (A-002). Copier .mode-plan/ dans les livrables."]
+    verdicts = sorted(mp.glob("verdict_round_*.json"))
+    last = verdicts[-1] if verdicts else (
+        mp / "verdict.json" if (mp / "verdict.json").is_file() else None)
+    if last is None:
+        return ["C15: aucun verdict_round_*.json ni verdict.json dans .mode-plan/."]
+    try:
+        data = json.loads(last.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return [f"C15: {last.name} illisible (JSON invalide)."]
+    if data.get("verdict_global") == "major_revision":
+        bannered = any(
+            "⚠" in (project_dir / f).read_text(encoding="utf-8", errors="replace")[:2000]
+            for f in REQUIRED_FILES if (project_dir / f).is_file()
+        )
+        if not bannered:
+            return ["C15: dernier verdict = major_revision, sans round ultérieur ni "
+                    "bannière ⚠ en tête des livrables (A-001) — relancer un round OU "
+                    "tracer le choix utilisateur par une bannière."]
+    return []
+
+
 def run_all_checks(project_dir, type_, memory, harness="off", autoimprove="off",
-                   handoff="off", selfeval="off", llmlimits="off"):
+                   handoff="off", selfeval="off", llmlimits="off", delivery="off"):
     """Run all circuit-breakers, return structured report."""
     all_fails = []
     all_fails.extend(check_files_exist(project_dir))
@@ -384,25 +427,44 @@ def run_all_checks(project_dir, type_, memory, harness="off", autoimprove="off",
     all_fails.extend(check_reset_contexte_per_session(project_dir))
 
     checks_run = 9
+    # Trace explicite des gates opt-in sautés (audit 2026-07-03, A-009) : un flag
+    # omis = check SAUTÉ ET TRACÉ, jamais un silence indistinguable d'un PASS.
+    checks_skipped = []
     if harness == "on":
         all_fails.extend(check_harness_coverage(project_dir))
         checks_run += 1
+    else:
+        checks_skipped.append("C10 (--harness=off)")
     if type_ == "skill" and autoimprove == "on":
         all_fails.extend(check_autoimprove_loop(project_dir))
         checks_run += 1
+    elif type_ == "skill":
+        checks_skipped.append("C11 (--autoimprove=off)")
     if handoff == "on":
         all_fails.extend(check_handoff_spec(project_dir))
         checks_run += 1
+    else:
+        checks_skipped.append("C12 (--handoff=off)")
     if selfeval == "on":
         all_fails.extend(check_selfeval(project_dir))
         checks_run += 1
+    else:
+        checks_skipped.append("C13 (--selfeval=off)")
     if llmlimits == "on":
         all_fails.extend(check_c14_llm_limits(project_dir, type_))
         checks_run += 1
+    else:
+        checks_skipped.append("C14 (--llmlimits=off)")
+    if delivery == "on":
+        all_fails.extend(check_delivery_gate(project_dir))
+        checks_run += 1
+    else:
+        checks_skipped.append("C15 (--delivery=off)")
 
     return {
         "project": str(project_dir),
         "checks_run": checks_run,
+        "checks_skipped": checks_skipped,
         "failures": all_fails,
         "status": "PASS" if not all_fails else "FAIL",
     }
@@ -435,6 +497,10 @@ def main():
         "--llmlimits", choices=["on", "off"], default="off",
         help="v4.1: if type=skill/agent, require the domain LLM-limits section (§12bis, C14)"
     )
+    ap.add_argument(
+        "--delivery", choices=["on", "off"], default="off",
+        help="v4.2: gate de livraison C15 — .mode-plan/ livré + bannière si major_revision"
+    )
     args = ap.parse_args()
 
     if not args.project_dir.is_dir():
@@ -442,7 +508,8 @@ def main():
         return 2
 
     report = run_all_checks(args.project_dir, args.type, args.memory, args.harness,
-                            args.autoimprove, args.handoff, args.selfeval, args.llmlimits)
+                            args.autoimprove, args.handoff, args.selfeval, args.llmlimits,
+                            args.delivery)
     print(json.dumps(report, indent=2, ensure_ascii=False))
     return 0 if report["status"] == "PASS" else 1
 

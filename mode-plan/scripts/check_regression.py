@@ -179,6 +179,17 @@ def main() -> int:
               file=sys.stderr)
         return 2
 
+    # Fail-closed (audit 2026-07-03, CODE-003) : un fichier requis ABSENT n'est pas
+    # « zéro régression » — statut dédié MISSING_FILES, jamais un PASS silencieux.
+    missing = [f for f in REQUIRED_FILES if not (args.project_dir / f).is_file()]
+    if missing:
+        print(json.dumps({"status": "MISSING_FILES", "project": str(args.project_dir),
+                          "missing": missing,
+                          "note": "0 fichier analysé ≠ 0 régression — fournir les fichiers "
+                                  "requis ou corriger project_dir."},
+                         indent=2, ensure_ascii=False))
+        return 2
+
     all_alerts = []
     for fname in REQUIRED_FILES:
         path = args.project_dir / fname

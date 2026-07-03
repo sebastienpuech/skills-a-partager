@@ -180,6 +180,16 @@ def main():
     spec = json.loads(evals_file.read_text(encoding="utf-8"))
     cases = spec.get("cases", [])
 
+    # Fail-closed (audit 2026-07-03, CODE-004) : 0 cas = statut NO_CASES, exit 2.
+    # « Summary: 0/0 passed » rendait le harnais vert sans exécuter aucun cas
+    # (evals.json vide ou clé 'cases' qui a dérivé de schéma).
+    if not cases:
+        print(json.dumps({"status": "NO_CASES", "evals_file": str(evals_file),
+                          "note": "aucun cas d'éval chargé — evals.json vide ou clé "
+                                  "'cases' absente/dérivée ; un harnais sans cas n'est "
+                                  "pas un harnais vert."}), file=sys.stderr)
+        return 2
+
     print(f"Running {len(cases)} eval cases against scripts in {scripts_dir}")
     print("=" * 70)
 

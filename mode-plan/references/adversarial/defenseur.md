@@ -51,8 +51,8 @@ Pour CHAQUE critique reçue (ID + section + passage_cite + critique) :
 1. Le fichier `aligned_critiques.json` (output du merge Phase 3.2) :
    liste de critiques de format :
    {
-     "id": "ARCH-001" | "PRAG-001" | "SIM-001",
-     "angle": "architecte" | "pragmatiste" | "simulateur",
+     "id": "ARCH-001" | "PRAG-001" | "SIM-001" | "HARN-001",
+     "angle": "architecte" | "pragmatiste" | "simulateur" | "harnais",
      "fichier": "...",
      "section": "...",
      "passage_cite": "...",
