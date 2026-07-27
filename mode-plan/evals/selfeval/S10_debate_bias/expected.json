@@ -1,0 +1,9 @@
+{
+  "case_id": "S10_debate_bias",
+  "type_projet": "app",
+  "agents_requis": ["observateur"],
+  "expected_verdicts": {
+    "observateur": {"contient_biais": "B3", "gravite": "ÉLEVÉE"}
+  },
+  "should_not_fire": []
+}

@@ -1,0 +1,17 @@
+{
+  "case_id": "EV3_partial_guardrails",
+  "difficulte": "difficile",
+  "critique": {
+    "id": "HARN-503",
+    "fichier": "plan.md",
+    "section": "9. Garde-fous",
+    "passage_cite": "timeout 30s par fichier ; retry x3",
+    "critique": "H6 : garde-fous insuffisants — ni idempotence ni rollback en cas d'échec partiel (sync interrompue au milieu laisse un état incohérent).",
+    "gravite": "MAJEUR"
+  },
+  "ground_truth": {
+    "verdict": "PARTIELLE",
+    "raison": "Partiellement valide : l'idempotence EST présente (§9 'ré-synchroniser un fichier déjà à jour ne fait rien'), donc la critique se trompe sur ce point. MAIS le rollback sur échec partiel est bien absent. La critique tient à moitié → PARTIELLE.",
+    "passage_qui_repond": "idempotence : re-synchroniser un fichier déjà à jour ne fait rien"
+  }
+}

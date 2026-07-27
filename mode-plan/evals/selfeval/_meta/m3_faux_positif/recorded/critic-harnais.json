@@ -1,0 +1,23 @@
+{
+  "_provenance": {
+    "agent_file": "references/adversarial/critic-harnais.md",
+    "agent_sha256": "15847a9210f4cd6b2180a494f9f2f25b705390414d04e0b85bd62c15eb6271d7",
+    "recorded_at": "2026-07-01"
+  },
+  "output": {
+    "angle": "harnais",
+    "score_local": 6,
+    "critiques": [
+      {
+        "id": "HARN-030",
+        "fichier": "archi.md",
+        "section": "Garde-fous",
+        "passage_cite": "timeout 5s, retry x2 (section PROPRE)",
+        "critique": "FAUX POSITIF planté : le critic flagge une section Garde-fous pourtant propre. Le grader doit détecter que should_not_fire est violé.",
+        "gravite": "MAJEUR",
+        "hook": "H6",
+        "patch_propose": "## Garde-fous\n- (rien à ajouter, la section est correcte)"
+      }
+    ]
+  }
+}

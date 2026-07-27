@@ -1,0 +1,10 @@
+{
+  "case_id": "S9_architecture_flaw",
+  "type_projet": "app",
+  "agents_requis": ["critic-architecte", "critic-pragmatiste"],
+  "expected_verdicts": {
+    "critic-architecte": {"contient_gravite": "CRITIQUE"},
+    "critic-pragmatiste": {"contient_gravite": "MAJEUR"}
+  },
+  "should_not_fire": []
+}

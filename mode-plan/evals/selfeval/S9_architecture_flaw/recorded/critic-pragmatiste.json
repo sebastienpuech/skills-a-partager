@@ -1,0 +1,23 @@
+{
+  "_provenance": {
+    "agent_file": "references/adversarial/critic-pragmatiste.md",
+    "agent_sha256": "74b69870856f1f09b0a6f24c067d81d0601685b7583d4154ed4a2d06e9b295c4",
+    "recorded_at": "2026-07-01"
+  },
+  "output": {
+    "angle": "pragmatiste",
+    "score_local": 4,
+    "critiques": [
+      {
+        "id": "PRAG-201",
+        "fichier": "spec_produit.md",
+        "section": "Fonctions V1",
+        "passage_cite": "4. Détection d'anomalies par ML entraîné en ligne. 5. Dashboard temps réel multi-utilisateur avec alerting.",
+        "critique": "Scope creep massif en V1 : le ML en ligne et le dashboard temps réel multi-utilisateur sont deux projets à part entière qui noient le MVP (agréger + indexer). Livrable impossible dans un temps raisonnable.",
+        "gravite": "MAJEUR",
+        "hook": null,
+        "patch_propose": "## Fonctions V1\n- Garder 1-3 (lire/parser/indexer). Déplacer 4 (ML anomalies) et 5 (dashboard temps réel) en V2 HORS SCOPE."
+      }
+    ]
+  }
+}

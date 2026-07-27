@@ -1,0 +1,13 @@
+{
+  "case_id": "S3_citation_inventee",
+  "type_projet": "skill",
+  "agents_requis": ["critic-simulateur"],
+  "graded_by": "verify_citations",
+  "note": "Câblé en Session 2 : verify_citations doit flagger la citation absente en 'non_ancre' et downgrader.",
+  "expected_citations": {
+    "critic-simulateur": {
+      "passage_cite": "cache LRU de 500 entrées avec éviction probabiliste",
+      "attendu": "non_ancre"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "_provenance": {
+    "agent_file": "references/adversarial/defenseur.md",
+    "agent_sha256": "ffa9894e1333ff6b4b67a84241972b0ea0570d9516f323e10149bfd90d12895e",
+    "recorded_at": "2026-07-01"
+  },
+  "output": {
+    "defenses": [
+      {
+        "critique_id": "HARN-050",
+        "verdict_defense": "TROUVÉ",
+        "section_qui_repond": "Signal de succès (spec_produit.md)",
+        "passage_qui_repond": "Golden set: 3 payloads CI (pass / fail / malformé) -> message attendu asserté",
+        "argument": "Le plan a bien un signal de succès rejouable ; la critique H1 est un faux négatif.",
+        "force": "FORTE"
+      }
+    ]
+  }
+}

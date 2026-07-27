@@ -1,0 +1,15 @@
+{
+  "angle": "simulateur",
+  "score_local": 6,
+  "critiques": [
+    {
+      "id": "SIM-001",
+      "fichier": "data_model.md",
+      "section": "Entites",
+      "passage_cite": "Schema ambigu",
+      "critique": "Contrat implicite entre entites.",
+      "gravite": "MAJEUR",
+      "patch_propose": "Expliciter le schema."
+    }
+  ]
+}

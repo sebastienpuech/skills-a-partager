@@ -1,0 +1,1 @@
+{"angle":"simulateur","score_local":6,"critiques":[{"id":"SIM-001","fichier":"spec_produit.md","section":"6. Scénarios","passage_cite":"Scénario 3 mentionne 'gérer les erreurs'","critique":"Format d'erreur non spécifié","gravite":"MINEUR","patch_propose":"Préciser format"}]}

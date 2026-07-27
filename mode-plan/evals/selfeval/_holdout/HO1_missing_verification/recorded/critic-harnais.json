@@ -1,0 +1,23 @@
+{
+  "_provenance": {
+    "agent_file": "references/adversarial/critic-harnais.md",
+    "agent_sha256": "15847a9210f4cd6b2180a494f9f2f25b705390414d04e0b85bd62c15eb6271d7",
+    "recorded_at": "2026-07-01"
+  },
+  "output": {
+    "angle": "harnais",
+    "score_local": 4,
+    "critiques": [
+      {
+        "id": "HARN-100",
+        "fichier": "archi.md",
+        "section": "ABSENTE",
+        "passage_cite": "aucune section harnais sur H2",
+        "critique": "Aucune vérification (H2) : rien ne re-vérifie la sortie du normalizer. Le golden set existe (H1) mais aucune couche ne l'exécute ni ne vérifie les invariants -> vérification aveugle.",
+        "gravite": "CRITIQUE",
+        "hook": "H2",
+        "patch_propose": "## Vérification\n- valider chaque table produite contre le schéma attendu ; échec bloquant."
+      }
+    ]
+  }
+}

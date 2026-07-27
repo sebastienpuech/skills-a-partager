@@ -1,0 +1,15 @@
+{
+  "angle": "harnais",
+  "score_local": 5,
+  "critiques": [
+    {
+      "id": "HARN-001",
+      "fichier": "spec_produit.md",
+      "section": "ABSENTE",
+      "passage_cite": "aucune section harnais sur H1",
+      "critique": "Pas de golden set ni d'assertions binaires (H1) : le plan n'a aucun signal de succes.",
+      "gravite": "CRITIQUE",
+      "patch_propose": "Ajouter une section Harnais & signal de succes (golden set + assertions)."
+    }
+  ]
+}

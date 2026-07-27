@@ -1,0 +1,17 @@
+{
+  "case_id": "EV5_real_scopecreep",
+  "difficulte": "moyen",
+  "critique": {
+    "id": "PRAG-505",
+    "fichier": "plan.md",
+    "section": "5. Fonctions V1",
+    "passage_cite": "Prédiction par ML ... Synchronisation temps réel multi-appareils",
+    "critique": "Scope creep en V1 : la prédiction ML de durée et la synchro temps réel multi-appareils sont deux projets entiers, sans rapport avec un todo-cli minimal (ajouter/cocher/lister). Ils noient le MVP.",
+    "gravite": "MAJEUR"
+  },
+  "ground_truth": {
+    "verdict": "CONFIRMÉE",
+    "raison": "Valide : la vision est un 'petit outil CLI' (ajouter/cocher/lister), mais V1 embarque du ML de prédiction et de la synchro temps réel multi-appareils — clairement prématuré et hors MVP. Rien dans le plan ne justifie ces features en V1.",
+    "passage_qui_repond": null
+  }
+}

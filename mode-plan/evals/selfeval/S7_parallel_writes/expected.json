@@ -1,0 +1,9 @@
+{
+  "case_id": "S7_parallel_writes",
+  "type_projet": "app",
+  "agents_requis": ["critic-harnais"],
+  "expected_verdicts": {
+    "critic-harnais": {"contient_gravite": "MAJEUR", "sur_hook": "H8"}
+  },
+  "should_not_fire": []
+}

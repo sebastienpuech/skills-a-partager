@@ -1,0 +1,11 @@
+{
+  "case_id": "S2_already_covered",
+  "type_projet": "skill",
+  "agents_requis": ["critic-harnais", "defenseur"],
+  "expected_verdicts": {
+    "defenseur": {"trouve_sur_ancre": "HARN-050"}
+  },
+  "should_not_fire": [
+    {"agent": "critic-harnais", "fichier": "spec_produit.md", "section": "Signal de succès"}
+  ]
+}

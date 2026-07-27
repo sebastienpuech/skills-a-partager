@@ -1,0 +1,23 @@
+{
+  "_provenance": {
+    "agent_file": "references/adversarial/critic-harnais.md",
+    "agent_sha256": "15847a9210f4cd6b2180a494f9f2f25b705390414d04e0b85bd62c15eb6271d7",
+    "recorded_at": "2026-07-01"
+  },
+  "output": {
+    "angle": "harnais",
+    "score_local": 3,
+    "critiques": [
+      {
+        "id": "HARN-001",
+        "fichier": "spec_produit.md",
+        "section": "ABSENTE",
+        "passage_cite": "aucune section harnais sur H1",
+        "critique": "Le plan n'a aucun signal de succès / golden set (H1). Impossible de mesurer si le skill marche : sans assertions binaires rejouables, la vérification est aveugle et un trou passera inaperçu.",
+        "gravite": "CRITIQUE",
+        "hook": "H1",
+        "patch_propose": "## Signal de succès (golden set)\n- 3 payloads CI (pass / fail / malformé) -> message attendu asserté (assertion binaire)."
+      }
+    ]
+  }
+}

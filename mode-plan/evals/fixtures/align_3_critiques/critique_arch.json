@@ -1,0 +1,1 @@
+{"angle":"architecte","score_local":7,"critiques":[{"id":"ARCH-001","fichier":"archi.md","section":"3. Composants","passage_cite":"Le composant Foo gère tout","critique":"Composant fourre-tout","gravite":"MAJEUR","patch_propose":"Splitter Foo"}]}

@@ -1,0 +1,9 @@
+{
+  "case_id": "HO2_covered_guardrails",
+  "type_projet": "skill",
+  "agents_requis": ["critic-harnais"],
+  "expected_verdicts": {},
+  "should_not_fire": [
+    {"agent": "critic-harnais", "fichier": "archi.md", "section": "Garde-fous"}
+  ]
+}
