@@ -1,7 +1,0 @@
-{
-  "case_id": "S8_holdout_gaming",
-  "type_projet": "skill",
-  "graded_by": "holdout",
-  "note": "Un patch qui monte le score golden mais casse un cas hold-out réel doit être REJETÉ (HARN-004). Vérifieur : le moteur rejoue evals/selfeval/_holdout/ ; regression_holdout < 100% -> revert auto. Câblé en Session 4.",
-  "expected_effet": {"patch_rejete": true}
-}

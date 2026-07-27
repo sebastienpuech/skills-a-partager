@@ -1,5 +1,0 @@
-{
-  "expected_grader_verdict": "fail",
-  "polarite": "faux_positif",
-  "note": "L'agent flagge à tort la section Garde-fous (should_not_fire violé) -> le grader DOIT dire fail."
-}

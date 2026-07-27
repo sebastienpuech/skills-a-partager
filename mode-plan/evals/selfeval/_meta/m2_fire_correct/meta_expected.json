@@ -1,5 +1,0 @@
-{
-  "expected_grader_verdict": "pass",
-  "polarite": "fire_correct",
-  "note": "L'agent flagge CRITIQUE/H1 comme attendu -> le grader DOIT dire pass."
-}

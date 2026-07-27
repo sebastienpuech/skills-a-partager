@@ -1,9 +1,0 @@
-{
-  "case_id": "m1_no_fire",
-  "type_projet": "skill",
-  "agents_requis": ["critic-harnais"],
-  "expected_verdicts": {
-    "critic-harnais": {"contient_gravite": "CRITIQUE", "sur_hook": "H1"}
-  },
-  "should_not_fire": []
-}

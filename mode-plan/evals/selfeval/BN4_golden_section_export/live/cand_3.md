@@ -1,3 +1,0 @@
-## §10bis. Harnais & signal de succès
-
-Le signal de succès est un **golden set** de 15-20 paires `(CSV d'entrée → JSON attendu)` stockées dans `tests/fixtures/`, couvrant les cas nominaux et les pièges : délimiteurs variés, en-têtes manquants ou dupliqués, cellules vides, types ambigus, encodages, caractères d'échappement. Un test compare le JSON produit au JSON attendu par égalité structurelle. Le skill est **vert** si 100 % des cas nominaux et ≥ 90 % des cas-pièges passent. Chaque bug rencontré en usage réel devient une nouvelle paire du golden set (non-régression). Deux garde-fous : un **schéma JSON** validé sur chaque sortie et un **contrôle de conservation** vérifiant que le nombre de lignes non vides du CSV se retrouve dans le JSON.

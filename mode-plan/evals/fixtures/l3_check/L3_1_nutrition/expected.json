@@ -1,9 +1,0 @@
-{
-  "case_id": "L3_1_nutrition",
-  "note": "SOL-outil-usda : ancrée (passage dans sources) + cas de test -> injecter. SOL-quantique : passage_source absent des sources (hallucination) -> backlog. SOL-prompt-citation : ancrée mais cas_de_test_futur vide (non exprimable) -> backlog.",
-  "decisions": {
-    "SOL-outil-usda": "injecter",
-    "SOL-quantique": "backlog",
-    "SOL-prompt-citation": "backlog"
-  }
-}

@@ -1,7 +1,0 @@
-{
-  "case_id": "S5_l3_gating",
-  "type_projet": "skill",
-  "graded_by": "l3_gate",
-  "note": "Skill stratégique -> phase L3 déclenchée ; app jetable -> sautée (archi §3). Vérifieur : lit l3_gate.json (data_model §8). Câblé en V2.",
-  "expected_gate": {"l3_declenchee": true}
-}

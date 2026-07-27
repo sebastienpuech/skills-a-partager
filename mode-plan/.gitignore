@@ -1,5 +1,0 @@
-# Artefacts runtime (générés à chaque run)
-**/selfeval_report.json
-evals/last_run.json
-**/citations_report.json
-_mode-plan-meta/cron.log

@@ -1,7 +1,0 @@
-# Le self-golden-set hashe le contenu des prompts d'agent (provenance sha256,
-# ARCH-R2-002). Forcer LF garantit que le sha reste stable cross-platform,
-# sinon un checkout CRLF déclencherait un faux STALE_FIXTURE.
-references/adversarial/*.md text eol=lf
-evals/selfeval/**/*.json text eol=lf
-evals/selfeval/**/*.md text eol=lf
-scripts/*.py text eol=lf

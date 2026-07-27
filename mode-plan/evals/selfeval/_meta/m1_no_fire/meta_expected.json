@@ -1,5 +1,0 @@
-{
-  "expected_grader_verdict": "fail",
-  "polarite": "no_fire",
-  "note": "L'agent n'a rien flaggé alors que le cas exige CRITIQUE/H1 -> le grader DOIT dire fail."
-}

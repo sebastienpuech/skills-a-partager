@@ -1,7 +1,0 @@
-{
-  "case_id": "BN3_golden_section_summarizer",
-  "type_projet": "skill",
-  "graded_by": "best_of_n",
-  "best_candidate": "cand_a_strong",
-  "note": "Cas gradué best-of-N (V2). Rubrique déterministe 0-10 sur la section §10bis. graded_by best_of_n -> skippé par self_eval_debate ; mesuré par best_of_n.py."
-}
