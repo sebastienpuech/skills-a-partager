@@ -7,13 +7,7 @@ description: Force la production d'un plan rigoureux en 4 fichiers markdown (spe
 
 Ce skill produit un plan en 4 fichiers markdown pour un projet complexe, le fait challenger par une **Debate Room** (4 critics parallèles + Défenseur + Juge), patche les trous **confirmés** (faux négatifs éliminés), et génère les prompts Claude Code de chaque session. **Le skill ne code rien.** Il s'arrête au handoff CC.
 
-Inspiré de la méthode appliquée intuitivement au projet Coach (`spec_produit.md` + `archi.md` + `data_model.md` + `sessions_claude_code.md`).
-
-**Changements v3.0 vs v2.0** : Phase 3 est maintenant une Debate Room (Pattern 1 d'orchestration-patterns) au lieu d'un critic composite mono-agent ; Phase 2 est enrichie par les patterns extraits de plans réussis (chaînage avec `pattern-extractor`) ; self-diagnosis convertie en circuit-breakers Python (`scripts/self_diagnosis.py`) ; check de non-régression entre versions de patches (`scripts/check_regression.py`).
-
-**Nouveau en v3.3 (Harnais-Aware)** : tout plan intègre désormais une couche **harnais** de bout en bout, fondée sur l'état de l'art 2025-2026. Concrètement : un **4e critic `harnais`** (Red Team, grille H1–H8) dans la Debate Room ; des **sections harnais dans les 3 templates** (signal de succès/golden set au `spec`, Couche Harnais à l'`archi`, session de vérification aux `sessions`) ; une **doctrine `references/harnais.md`** ; et une **gate `self_diagnosis.py --harness=on`** (check C10). Principe : on cesse de planifier *comment l'agent pense* (orchestration, que le modèle absorbe) pour planifier *ce qu'il voit, peut faire, et peut vérifier* (harnais).
-
-**Nouveau en v3.4 (harnais durci)** : la doctrine `references/harnais.md` et le `critic-harnais` intègrent l'état de l'art le plus récent (Q4 2025–Q2 2026) — **anti-gaming** (revers du RLVR : un grader gamable est un faux signal, fondu dans H2/CRITIQUE), **split capability/regression** + grade-the-output au `spec` §10bis, **token-efficience des outils** (chargement différé / exécution par code, H7), **règle du writer unique** (lectures parallèles, écritures single-threaded, H8) et **error-analysis** (lire les traces, pas seulement le score, H5). Aucun changement des scripts ni de la grille H1–H8 — les evals restent vertes (11/11).
+Historique de versions (v1.0 → v4.2) et exemple vivant (projet Coach) : `references/notes-et-historique.md` — le changelog y était déjà, en plus détaillé.
 
 ---
 
@@ -153,12 +147,13 @@ Lire `references/templates/app/` (seul type templaté en v3). 4 fichiers à prod
 
 **NE PAS produire `sessions_claude_code.md` à cette étape.**
 
-### Étape 2.4bis — best-of-N sur la section §10bis (v4.0 V2, opt-in `--bestofn=on`, OFF par défaut)
+### Étape 2.4bis — best-of-N sur la section §10bis (**ON par défaut** depuis le 2026-07-28)
 
-**Adopté** (adoption_gate.json, D1) : sur 8 cas gradués mesurés en live, best-of-N gagne **+0,11** capability (≥ seuil +0,03). Quand `--bestofn=on` : pour la section harnais **§10bis** (l'unité à plus haut signal), générer **N=2 candidats** au lieu d'un seul jet, garder le meilleur.
+**Adopté ET actif** (adoption_gate.json, D1) : sur 8 cas gradués mesurés en live, best-of-N gagne **+0,11** capability (≥ seuil +0,03). Pour la section harnais **§10bis** (l'unité à plus haut signal), générer **N=2 candidats** au lieu d'un seul jet, garder le meilleur.
 - **Writer-unique (archi §4bis)** : les 2 candidats se génèrent **en parallèle** (2 sous-drafters), mais **sélection + écriture finale sérialisées** sur l'agent principal (jamais d'écriture concurrente). Les déposer dans `outputs/<nom_projet>/.mode-plan/bestofn_10bis/cand_{1,2}.md`.
 - **Sélection** : `python3 scripts/best_of_n.py --select <ce_dossier>` → candidat au plus haut score rubrique ; l'agent principal écrit CE candidat dans `spec_produit.md` §10bis.
-- **Coût** : **N=2 seulement**, surcoût ≈ **×2 sur cette seule étape**. `--bestofn` **OFF par défaut** → comportement v4.1 (un seul jet) inchangé.
+- **Coût** : **N=2 seulement**, surcoût ≈ **×2 sur cette seule étape** (pas sur le run). Désactivable au cas par cas par `--bestofn=off` — une dérogation se déclare, elle ne se subit pas.
+- **Pourquoi ce changement** : la gate disait « activer » depuis le plan v4, le câblage était resté opt-in, donc l'adoption réelle était **nulle**. Repéré par `meta/adoption/` le 2026-07-27. Une capacité mesurée qu'on n'active pas est une mesure jetée.
 
 ### Étape 2.5 — Si type=skill : section Mémoire obligatoire
 

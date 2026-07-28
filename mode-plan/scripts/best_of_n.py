@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """best_of_n.py — module frontière+ V2 : générer N candidats, garder le meilleur.
 
-Opt-in (`--bestofn=on`, OFF par défaut). N'est ADOPTÉ que s'il prouve un gain mesuré
+ON par défaut depuis le 2026-07-28 (`--bestofn=off` pour désactiver). N'a été ACTIVÉ qu'après avoir prouvé un gain mesuré
 de +0.03 de score capability sur le golden set (règle de fer, spec §4/§10bis, gate D1
 data_model §5). En V1 seul le gate « à sec » existait ; ici on câble la génération réelle.
 
@@ -206,8 +206,10 @@ def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8")
     sys.stderr.reconfigure(encoding="utf-8")
     ap = argparse.ArgumentParser(description="best-of-N (V2, opt-in)")
-    ap.add_argument("--bestofn", choices=["on", "off"], default="off",
-                    help="active le module (OFF par défaut = comportement v4.1 strict)")
+    ap.add_argument("--bestofn", choices=["on", "off"], default="on",
+                    help="active le module (ON par défaut depuis le 2026-07-28 : la gate D1 "
+                         "disait « activer » et le câblage était reste opt-in ; --bestofn=off "
+                         "pour revenir au comportement v4.1 strict, dérogation à déclarer)")
     ap.add_argument("--check", action="store_true", help="mécanisme : best-of-N choisit le max (CI)")
     ap.add_argument("--select", metavar="DIR", default=None,
                     help="câblage Phase 2 : sort le meilleur candidat (*.md) d'un dossier")
