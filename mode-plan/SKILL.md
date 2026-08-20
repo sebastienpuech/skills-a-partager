@@ -1,13 +1,13 @@
 ---
 name: mode-plan
-description: Force la production d'un plan rigoureux en 4 fichiers markdown (spec_produit, archi, data_model, sessions_claude_code) pour tout projet complexe (app, software, skill multi-agent, doc structuré), avec Debate Room adversariale (3 critics parallèles + Défenseur + Juge) et génération de prompts Claude Code self-contained. Utiliser dès que l'utilisateur veut démarrer un nouveau projet complexe, faire un plan d'attaque, planifier un développement multi-sessions, structurer une refonte avant d'implémenter, méthode Cherny, mode plan, plan rigoureux, fais-moi un plan, on planifie d'abord, avant de coder, comme pour le projet Coach, les 4 fichiers. Le skill produit le plan, le challenge, et génère les prompts CC — il ne code rien. Le plan intègre une couche harnais (golden set/signal de succès, vérification, garde-fous, observabilité, mémoire). NE PAS utiliser pour projet simple (≤3 sessions anticipées, pas de golden set), itération sur un projet en cours, ou exécution effective des sessions.
+description: Force la production d'un plan rigoureux en 4 fichiers markdown (spec_produit, archi, data_model, sessions_claude_code) pour tout projet complexe (app, software, skill multi-agent, doc structuré), avec Debate Room adversariale (4 critics parallèles + Défenseur + Juge) et génération de prompts Claude Code self-contained. Utiliser dès que l'utilisateur veut démarrer un nouveau projet complexe, faire un plan d'attaque, planifier un développement multi-sessions, structurer une refonte avant d'implémenter, méthode Cherny, mode plan, plan rigoureux, fais-moi un plan, on planifie d'abord, avant de coder, comme pour le projet Coach, les 4 fichiers. Le skill produit le plan, le challenge, et génère les prompts CC — il ne code rien. Le plan intègre une couche harnais (golden set/signal de succès, vérification, garde-fous, observabilité, mémoire). NE PAS utiliser pour projet simple (≤3 sessions anticipées, pas de golden set), itération sur un projet en cours, ou exécution effective des sessions.
 ---
 
-# Mode Plan v4.2 — Plan rigoureux Harnais-Aware (Debate Room + Refinement Loop + Méta-cognitif)
+# Mode Plan v4.3 — Plan rigoureux Harnais-Aware (Debate Room + Refinement Loop + Méta-cognitif)
 
 Ce skill produit un plan en 4 fichiers markdown pour un projet complexe, le fait challenger par une **Debate Room** (4 critics parallèles + Défenseur + Juge), patche les trous **confirmés** (faux négatifs éliminés), et génère les prompts Claude Code de chaque session. **Le skill ne code rien.** Il s'arrête au handoff CC.
 
-Historique de versions (v1.0 → v4.2) et exemple vivant (projet Coach) : `references/notes-et-historique.md` — le changelog y était déjà, en plus détaillé.
+Historique de versions (v1.0 → v4.3) et exemple vivant (projet Coach) : `references/notes-et-historique.md` — le changelog y était déjà, en plus détaillé.
 
 ---
 
@@ -35,7 +35,7 @@ Critères binaires :
 - **Append-only patches font grossir les fichiers.** Au-delà de v1.5 sur un même fichier, proposer une consolidation vN.0.
 - **Sub-agent custom = pas invocable par nom en Cowork.** Toujours passer le contenu du fichier `.md` comme prompt au `subagent_type: general-purpose`.
 - **100% Opus.** Tous les sous-agents (critics, Défenseur, Juge, Observateur, drafters best-of-N) héritent du modèle de session — AUCUN downgrade Haiku/Sonnet. Sous forfait Max (Agent SDK, tarif à plat) un modèle « cheap » n'a aucun intérêt et dégrade la justesse (mesuré : V2-2, ensemble Haiku −0,125). Ne jamais coder de `model:` non-Opus.
-- **3 critics parallèles peuvent converger sur le même patch** (mode collapse cross-agents) — c'est OK, le script `align_critiques.py` détecte les doublons et le Défenseur les traite une seule fois.
+- **4 critics parallèles peuvent converger sur le même patch** (mode collapse cross-agents) — c'est OK, le script `align_critiques.py` détecte les doublons et le Défenseur les traite une seule fois.
 - **Si tu invoques un MCP tool : nom fully qualified obligatoire.** `server_name:tool_name`. Sans namespace → "tool not found" silencieux.
 - **Pattern injection (Phase 2) est optionnelle** — si `outputs/_mode-plan-meta/patterns-from-real-plans.md` n'existe pas, on dégrade vers le draft from template, sans bloquer.
 
@@ -377,9 +377,11 @@ Plan d'abord, je valide avant que tu agisses.
 
 En-tête du fichier : **règle de fer consolidée** (Phase 1) + table de référence du Reset contexte. (En v3.6, la règle de fer vit surtout dans le `CLAUDE.md` du repo — cf. 4.3bis — donc les prompts de session peuvent être plus légers.)
 
+**En-tête « Exécution » (v4.3)** : ajouter en tête du fichier le bloc de délégation d'exécution de `references/handoff-cc.md` (section « Exécution — déléguer au plugin superpowers »). mode-plan s'arrête au handoff : il ne décrit PAS comment coder une session, il désigne qui le fait (`superpowers:subagent-driven-development` + `superpowers:verification-before-completion`) et donne le fallback si le plugin est absent. Jamais recopier le texte de ces skills dans le plan — les appeler.
+
 ### Étape 4.3bis — Générer le `CLAUDE.md` du repo cible (v3.6, handoff fichier-resident)
 
-**Toujours**, quel que soit le type. Le plan ne se colle pas dans Claude Code, il **vit dans le repo**. Générer `outputs/<nom_projet>/CLAUDE.md` (destiné à la **racine du repo cible**) à partir du template de `references/handoff-cc.md` (section « Handoff fichier-resident »). Il doit contenir : la **règle de fer** consolidée (Phase 1), les **pointeurs vers les 4 fichiers** du plan, la **discipline harnais** (éval avant features, re-run par session, git checkpoints), et le rappel Reset contexte.
+**Toujours**, quel que soit le type. Le plan ne se colle pas dans Claude Code, il **vit dans le repo**. Générer `outputs/<nom_projet>/CLAUDE.md` (destiné à la **racine du repo cible**) à partir du template de `references/handoff-cc.md` (section « Handoff fichier-resident »). Il doit contenir : la **règle de fer** consolidée (Phase 1), les **pointeurs vers les 4 fichiers** du plan, la **discipline harnais** (éval avant features, re-run par session, git checkpoints), le bloc **Exécution** (délégation `superpowers`, v4.3) et le rappel Reset contexte.
 
 Effet : Claude Code charge `CLAUDE.md` automatiquement à chaque session → contexte persistant, versionné, qui survit aux resets. (Pour un repo multi-outils, générer aussi `AGENTS.md`.) La gate `--handoff=on` (C12) bloque la livraison si ce fichier manque.
 
@@ -497,4 +499,4 @@ Présenter à l'user :
 
 ## Notes, portabilité, limitations & historique
 
-Contenu de référence **jamais nécessaire pendant un run** → déplacé vers **`references/notes-et-historique.md`** (progressive disclosure, v4.1). On y trouve : l'articulation avec `skill-auto-improver`, la portabilité des agents custom (Claude Code ↔ Cowork), les limitations connues, le plan de consolidation anti-bloat, l'**historique de versions** (v1.0 → v4.1), et l'exemple vivant (projet Coach). Consulter à la demande.
+Contenu de référence **jamais nécessaire pendant un run** → déplacé vers **`references/notes-et-historique.md`** (progressive disclosure, v4.1). On y trouve : l'articulation avec `skill-auto-improver`, la portabilité des agents custom (Claude Code ↔ Cowork), les limitations connues, le plan de consolidation anti-bloat, l'**historique de versions** (v1.0 → v4.3), et l'exemple vivant (projet Coach). Consulter à la demande.

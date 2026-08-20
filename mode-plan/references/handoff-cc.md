@@ -45,9 +45,23 @@ Le handoff devient : « copie le dossier du plan dans ton repo, commit, `cd` + o
 - git : workspace clean avant tout changement ; commit par session/sprint ; revert si régression.
 - Fin de session : mettre à jour `sessions_claude_code.md` ([DONE] + Décisions + Divergences).
 
+## Exécution d'une session — déléguer, ne pas réinventer
+- Plugin `superpowers` installé → exécuter la session via **`superpowers:subagent-driven-development`** (une tâche = un sous-agent à contexte frais) puis clôturer par **`superpowers:verification-before-completion`** avant d'écrire « done ».
+- Plugin absent → exécuter directement, en gardant les deux invariants ci-dessus : contexte frais par tâche, vérification explicite en fin de session.
+
 ## Reset contexte
 Dans le doute : nouvelle fenêtre. (cf. `sessions_claude_code.md`, champ Reset contexte par session.)
 ```
+
+### Exécution — déléguer au plugin superpowers (v4.3)
+
+mode-plan couvre la **montée** (spec → archi → Debate Room → plan) et s'arrête au handoff. La **descente** (exécuter une session, TDD, vérifier avant de déclarer fini) est déjà couverte par le plugin officiel `superpowers` : `subagent-driven-development` (dispatch tâche par tâche, contexte frais) et `verification-before-completion` (gate anti-« done » prématuré).
+
+**Par délégation, jamais par copie.** Le plan cible ces skills par leur nom ; leur texte reste chez Anthropic et suit ses mises à jour. Un fork recopié dans le plan pourrit en silence à la version suivante.
+
+**Dégradation gracieuse** : le bloc nomme toujours le fallback (contexte frais + vérification explicite), donc un plan reste exécutable sur une machine sans le plugin. Aucune gate ne vérifie la présence de `superpowers` — c'est une préférence d'exécution, pas un prérequis de livraison.
+
+**Réversible** : supprimer le bloc « Exécution d'une session » du template ci-dessus suffit à revenir au comportement v4.2.
 
 ---
 
