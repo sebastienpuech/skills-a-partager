@@ -85,11 +85,18 @@ Check available MCPs for research.
 Read `references/architecture-decision.md` for the full guide.
 
 1. Classify task type: TRANSFORMATION | EVALUATION | GENERATION | ANALYSIS
-2. Score conceptual complexity (0-9) and input volume (SMALL/MEDIUM/LARGE/VERY LARGE)
-3. Choose architecture:
-   - 0-3 → A (single agent + self-diagnosis). If also SMALL → offer fast-path
-   - 4-6 → B (single agent + internal critique phase)
-   - 7+  → C (multi-agent, choose pattern from architecture-decision.md)
+2. Assess conceptual complexity and input volume (SMALL/MEDIUM/LARGE/VERY LARGE)
+3. Choose the architecture the task actually needs — judge the task, not a number:
+   - A = single agent + self-diagnosis. If also SMALL → offer fast-path
+   - B = single agent + internal critique phase
+   - C = multi-agent (choose pattern from architecture-decision.md)
+
+   **No score-to-architecture mapping** (removed 2026-08-24). The former rule
+   (0-3→A / 4-6→B / 7+→C) was measured over 19 briefs × 2 models against a control
+   given no guidance at all: **36/36 under Opus 5, 37/37 under Fable 5** — strictly
+   no difference. It cost reference-file reading on every design for zero measured
+   gain. Nothing replaces it: an explicit invariant list was tested in the same run
+   and did NOT clear its quality bar either.
 4. Overlay volume strategy (sectioned reading for LARGE, chunking for VERY LARGE)
 5. Choose guardrails matched to task type (see Step 4b in architecture-decision.md)
 

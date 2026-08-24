@@ -16,17 +16,17 @@ Read this BEFORE writing the SKILL.md.
 
 Two separate scores determine the architecture. Score them independently.
 
-### 2a. Conceptual complexity (determines single vs multi-agent)
+### 2a. Conceptual complexity (informs single vs multi-agent)
 
-| Criterion | Points | Description |
-|-----------|--------|-------------|
-| Cost of error | 0-3 | 0=negligible, 1=annoying, 2=costly, 3=critical (millions $) |
-| Subjectivity | 0-2 | 0=mechanically verifiable, 2=pure judgment |
-| Non-expert users | 0-2 | 0=experts who will verify, 2=non-experts who trust blindly |
-| Edge cases | 0-1 | 0=well-constrained domain, 1=varied and frequent edge cases |
-| Frequency | 0-1 | 0=occasional, 1=regular (>10x/month) |
+Dimensions to weigh — they no longer add up to a score:
 
-**Max: 9 points**
+| Dimension | What to look at |
+|-----------|-----------------|
+| Cost of error | negligible / annoying / costly / critical |
+| Subjectivity | mechanically verifiable ↔ pure judgment |
+| Non-expert users | experts who will verify ↔ non-experts who trust blindly |
+| Edge cases | well-constrained domain ↔ varied and frequent edge cases |
+| Frequency | occasional ↔ regular (>10x/month) |
 
 ### 2b. Input volume (determines chunking and context strategy)
 
@@ -46,15 +46,21 @@ chunking at all.
 
 ## Step 3: Choose Architecture
 
-**Based on conceptual complexity score:**
+**Judge the task, not a number:**
 
-| Score | Architecture | What to build |
-|-------|-------------|---------------|
-| 0-3 | A: Single agent + self-diagnosis | Just SKILL.md with self-diagnosis section at the end |
-| 4-6 | B: Single agent + internal critique | SKILL.md in 2 phases (execution + critique before delivery) |
-| 7+ | C: Multi-agent | agents/ directory with roles + synthesizer (see Step 4 for pattern) |
+| Architecture | What to build |
+|-------------|---------------|
+| A: Single agent + self-diagnosis | Just SKILL.md with self-diagnosis section at the end |
+| B: Single agent + internal critique | SKILL.md in 2 phases (execution + critique before delivery) |
+| C: Multi-agent | agents/ directory with roles + synthesizer (see Step 4 for pattern) |
 
-**Overlay with input volume — regardless of conceptual score:**
+**The score-to-architecture mapping (0-3→A / 4-6→B / 7+→C) was removed 2026-08-24.** Measured
+over 19 briefs × 2 models against a control given no guidance at all: 36/36 under Opus 5, 37/37
+under Fable 5 — strictly no difference. Nothing replaces it; an explicit invariant list was
+tested in the same run and did not clear its quality bar either. Protocol and data: journal
+entry dated 2026-08-24 at the repo root.
+
+**Overlay with input volume — regardless of architecture:**
 
 | Volume | Additional requirement |
 |--------|----------------------|
@@ -63,7 +69,7 @@ chunking at all.
 | LARGE | Add a **sectioned reading strategy** to the SKILL.md: list sections to process, read each one, accumulate findings, synthesize at the end. This is NOT multi-agent — it's a single agent working in passes. Add lost-in-the-middle mitigation: "After processing all sections, re-read the introduction and conclusion to check for information you may have missed in the middle." |
 | VERY LARGE | **Mandatory chunking pipeline**: a Python script splits the input into chunks, the agent processes each chunk independently, then a synthesis step merges findings. For Architecture A/B, this means adding a script. For Architecture C, one agent can be the "chunker/merger." Also add a circuit-breaker: if the agent's output references fewer than 60% of the input sections, flag as potentially incomplete. |
 
-## Step 4: Choose Pattern (if conceptual score >= 7)
+## Step 4: Choose Pattern (if Architecture C)
 
 ```
 EVALUATION task?
