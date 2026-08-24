@@ -100,6 +100,35 @@ Présenter un récap structuré (8-12 lignes) avec tous les Q1-Q10 + vision + r�
 
 **Ne pas avancer sans un "oui" explicite.**
 
+### Étape 1.6 — Ancrage du brief (v4.3, 2026-08-24, OBLIGATOIRE)
+
+**Vérifier le monde avant de discuter du plan.** La Debate Room critique le DOCUMENT ; aucun de
+ses 6 rôles n'a mandat d'aller voir si les prémisses du brief sont vraies. Une prémisse fausse
+traverse donc les 3 rounds intacte.
+
+1. Extraire du brief **chaque affirmation d'état** — « X n'est pas installé », « la tâche n'est
+   pas enregistrée », « S6 n'est pas fait », « le fichier n'existe pas ».
+2. Vérifier chacune **par commande**, jamais de mémoire ni d'après un journal :
+   dépendance → `pip show <pkg>` ; tâche planifiée → `Get-ScheduledTask` ; état du code →
+   `git log`/`git status` ; fichier → test d'existence ; comportement → lancer le test.
+3. Écrire `.mode-plan/ancrage.json` : une entrée par affirmation avec
+   `{affirmation, statut: "vraie"|"fausse"|"non_verifiable", commande, sortie}`.
+4. **Si une affirmation est fausse** : réécrire le brief, l'annoncer explicitement à
+   l'utilisateur, et repartir de l'étape 1.5. Ne jamais drafter sur une prémisse démentie.
+5. Ce que tu ne peux pas vérifier se déclare `non_verifiable` — pas « vraie par défaut ».
+
+**Gate d'entrée en Phase 3** : pas de Debate Room sans `ancrage.json` présent et sans zéro
+affirmation `"fausse"` restante. Un plan bâti sur une prémisse fausse ne se rattrape pas au
+round 2 : il se redrafte.
+
+> Incident fondateur (2026-08-24) : sur un brief affirmant « python-telegram-bot non installé,
+> tâche planifiée non enregistrée », un run complet — 4 critics × 3 rounds, 45 critiques
+> confirmées, 433 k tokens, 57 min — a planifié un travail **déjà déployé** et spécifié le test
+> `test_tache_planifiee_absente_avant_accord`, qui échoue dès la première exécution. Le même
+> brief traité sans Debate Room, en 8 min, avait corrigé la prémisse en allant lire la machine.
+> 3 juges aveugles sur 3 ont préféré le plan non challengé, dont un relevant que le plan issu de
+> la Debate Room **écraserait le token d'un bot en production**.
+
 ---
 
 ## Phase 2 — Draft du plan (avec injection de patterns)
