@@ -41,6 +41,9 @@ _ABSENCE_RE = re.compile(r"^\s*aucune?\s+section", re.IGNORECASE)
 # plusieurs mots. En-dessous du seuil, on refuse l'ancrage (anti-ancrage-trivial).
 MIN_ANCHOR_WORDS = 3
 
+# Marqueurs d'élision dans une citation : […]  [...]  …  ...  (2026-08-24)
+_ELLIPSIS_RE = re.compile(r"\s*(?:\[\s*(?:\.{2,}|…)\s*\]|\.{3,}|…)\s*")
+
 
 # --------------------------------------------------------------------------- #
 #  Cœur PUR (aucune I/O) — réutilisable par self_eval_debate.grade()
@@ -48,13 +51,40 @@ MIN_ANCHOR_WORDS = 3
 def is_anchored(passage: str, source_texts: list[str]) -> bool:
     """Vrai si le passage (normalisé) est un sous-texte d'AU MOINS une source ET
     qu'il est assez substantiel pour prouver un ancrage (>= MIN_ANCHOR_WORDS mots).
-    Un passage trivial ('le', un mot générique) NE s'ancre pas (audit #3)."""
+    Un passage trivial ('le', un mot générique) NE s'ancre pas (audit #3).
+
+    Citations ÉLIDÉES (correctif 2026-08-24) : une citation de la forme
+    « début du passage […] fin du passage » n'est jamais une sous-chaîne de la
+    source — `norm` ne retire que la ponctuation TERMINALE, l'ellipse du milieu
+    survit. Avant ce correctif, toute citation élidée sortait `non_ancre`, ce qui
+    faisait rétrograder des verdicts du Juge sur un pur artefact de format
+    (mesuré le 24/08 sur deux runs réels : 13 CONFIRMÉE + 1 REJETÉE dégradées en
+    PARTIELLE au seul round 1). On accepte désormais l'élision si TOUS les
+    fragments se retrouvent, DANS L'ORDRE, dans une MÊME source — l'exigence de
+    substance (MIN_ANCHOR_WORDS sur le total) reste, donc « le […] de » échoue.
+    """
     if not passage:
         return False
-    np = norm(passage)
-    if not np or len(np.split()) < MIN_ANCHOR_WORDS:
+    fragments = [f for f in (norm(p) for p in _ELLIPSIS_RE.split(passage)) if f]
+    # Substance mesurée sur les FRAGMENTS : sinon « le […] de » compte le marqueur
+    # d'élision comme un mot et franchit le seuil sans rien prouver.
+    if sum(len(f.split()) for f in fragments) < MIN_ANCHOR_WORDS:
         return False
-    return any(np in norm(t) for t in source_texts)
+    if len(fragments) <= 1:
+        np = norm(passage)
+        return bool(np) and any(np in norm(t) for t in source_texts)
+    for text in source_texts:
+        ntext = norm(text)
+        pos, ok = 0, True
+        for frag in fragments:
+            idx = ntext.find(frag, pos)
+            if idx < 0:
+                ok = False
+                break
+            pos = idx + len(frag)
+        if ok:
+            return True
+    return False
 
 
 def _is_declared_absence(passage: str, section: str) -> bool:
@@ -206,11 +236,16 @@ def main() -> int:
     sys.stderr.reconfigure(encoding="utf-8")
 
     ap = argparse.ArgumentParser(description="vérifieur de citations (archi §2.2)")
+    # Positionnel optionnel : alias de --case, pour que run_evals.py (qui passe le
+    # dossier de fixture en 1er argument) puisse couvrir ce script. 2026-08-24.
+    ap.add_argument("case_dir", nargs="?", default=None, help="alias positionnel de --case")
     ap.add_argument("--case", default=None, help="dossier d'un cas selfeval (3 md + recorded/)")
     ap.add_argument("--sources", default=None, help="dossier du plan (spec/archi/data_model)")
     ap.add_argument("--artifacts", default=None, help="dossier .mode-plan/ d'un run réel")
     ap.add_argument("--out", default=None, help="chemin de citations_report.json")
     args = ap.parse_args()
+    if args.case_dir and not args.case:
+        args.case = args.case_dir
 
     if args.case:
         case_dir = Path(args.case)

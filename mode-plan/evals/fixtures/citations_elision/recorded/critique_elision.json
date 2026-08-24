@@ -1,0 +1,6 @@
+{"output":{"critiques":[
+ {"id":"ELI-001","section_cible":"Gate de livraison","gravite":"MAJEUR",
+  "passage_cite":"Si le DERNIER verdict est major_revision […] relancer un round complet"},
+ {"id":"ELI-002","section_cible":"Gate de livraison","gravite":"MINEUR",
+  "passage_cite":"Si le DERNIER verdict […] envoyer un mail au client"}
+]}}

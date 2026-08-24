@@ -334,6 +334,20 @@
           "green": true
         }
       }
+    },
+    {
+      "id": "citations_elision_ancree",
+      "script": "verify_citations.py",
+      "fixture_dir": "fixtures/citations_elision",
+      "args": [],
+      "expected": {
+        "exit_code": 0,
+        "json_match": {
+          "ancrees": 1,
+          "total_citations": 2
+        }
+      },
+      "note": "Correctif 2026-08-24 : une citation elidee (« debut […] fin ») s'ancre si tous ses fragments sont presents DANS L'ORDRE. Avant, elle sortait non_ancre et faisait retrograder des verdicts du Juge sur un artefact de format. Le 2e cas (fragment absent) doit rester non ancre."
     }
   ]
 }
