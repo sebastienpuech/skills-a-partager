@@ -1,6 +1,6 @@
-# Exemple — Projet Coach sportif (Sébastien)
+# Exemple — un projet de coach sportif personnel
 
-Ce projet est la référence canonique de ce que `mode-plan` produit. Il a été créé manuellement par Sébastien en mode dialogue itératif (avant l'existence de `mode-plan`), et son format a directement inspiré le skill.
+Ce projet est la référence canonique de ce que `mode-plan` produit. Il a été créé manuellement par le mainteneur en mode dialogue itératif (avant l'existence de `mode-plan`), et son format a directement inspiré le skill.
 
 ## Structure du plan original
 
@@ -70,4 +70,4 @@ Ce projet a été produit *avant* mode-plan, donc en dialogue itératif libre. M
 
 ## Fichiers à consulter
 
-Les 4 fichiers complets du projet Coach sont disponibles dans les uploads de Sébastien sur Cowork (trop volumineux pour les inclure ici tels quels). Sur cette session : voir `uploads/spec_produit.md`, `uploads/archi.md`, `uploads/data_model.md`, `uploads/sessions_claude_code.md`.
+Les 4 fichiers complets du projet Coach sont disponibles dans les uploads du mainteneur sur Cowork (trop volumineux pour les inclure ici tels quels). Sur cette session : voir `uploads/spec_produit.md`, `uploads/archi.md`, `uploads/data_model.md`, `uploads/sessions_claude_code.md`.

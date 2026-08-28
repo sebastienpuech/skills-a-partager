@@ -1,6 +1,6 @@
 # register_cron.ps1 — installe (ou retire) la tâche planifiée hebdo mode-plan auto-improve.
 # Trigger TEMPOREL (dimanche 03:00) + StartWhenAvailable => survit à la veille Windows
-# (le pattern éprouvé de Sébastien). Tâche au niveau UTILISATEUR (pas d'admin requis).
+# (le pattern éprouvé du mainteneur). Tâche au niveau UTILISATEUR (pas d'admin requis).
 # Rien n'est enregistré tant qu'on ne lance pas ce script.
 #
 # Installer :  powershell -ExecutionPolicy Bypass -File scripts\register_cron.ps1

@@ -44,7 +44,7 @@ mode-plan v4.0 donne enfin à mode-plan un **instrument pour se mesurer lui-mêm
 
 ## 3. Persona / usage
 
-Sébastien, déclenchement **manuel**. Triggering/description **hors-scope**. Progressive disclosure **dans le scope** (context engineering).
+le mainteneur, déclenchement **manuel**. Triggering/description **hors-scope**. Progressive disclosure **dans le scope** (context engineering).
 
 ## 4. Périmètre — V1 (build) vs V2 (backlog gaté)  ⟵ réponse au Pragmatiste
 

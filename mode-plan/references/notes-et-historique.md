@@ -68,4 +68,4 @@ Si le SKILL.md dépasse 600 lignes OU si le fichier porte ≥ 4 patches en appen
 
 ## Référence d'exemple vivant
 
-Le projet Coach de Sébastien est l'exemple canonique de ce que mode-plan produit. Voir `examples/coach-project/README.md` pour le contexte.
+Le projet Coach du mainteneur est l'exemple canonique de ce que mode-plan produit. Voir `examples/coach-project/README.md` pour le contexte.

@@ -7,4 +7,4 @@ Le skill réussit si, pour un article donné, il produit **exactement 3 phrases*
 - **Fidélité factuelle** : aucune affirmation absente de l'article source (vérif LLM-juge « chaque phrase est-elle étayée par le texte ? », zéro toléré).
 - **Couverture** : l'idée principale de la référence est présente (LLM-juge de similarité sémantique, seuil ≥ 0,7).
 
-**Signal humain (échantillon) :** Sébastien relit 3 résumés tirés au sort et tranche « je le lirais à la place de l'article ? » — objectif ≥ 8/10 acceptés sans retouche. Toute régression sur ces trois métriques bloque le déploiement.
+**Signal humain (échantillon) :** le mainteneur relit 3 résumés tirés au sort et tranche « je le lirais à la place de l'article ? » — objectif ≥ 8/10 acceptés sans retouche. Toute régression sur ces trois métriques bloque le déploiement.

@@ -113,7 +113,7 @@ Gravité par défaut si manquant : **H1, H2 = CRITIQUE** (sans signal de succès
 
 ---
 
-## Ancrage dans l'écosystème de Sébastien
+## Ancrage dans l'écosystème du mainteneur
 
 Plusieurs briques harnais existent déjà — l'enjeu est de les rendre systématiques dans tout plan, pas périphériques :
 

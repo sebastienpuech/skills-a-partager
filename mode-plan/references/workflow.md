@@ -67,7 +67,7 @@ V1 simplification (cf. décisions design dans le plan initial v1.1). Avantages :
 - Coût tokens ÷ 3
 - Debug du prompt critic plus facile
 
-Si Sébastien constate après 5+ utilisations que le critic est "mou" ou rate des angles → splitter en 3 critics distincts (architect-skeptic, pragmatist, execution-simulator) et ajouter un synthétiseur séquentiel. Le pattern est documenté pour un upgrade futur.
+Si le mainteneur constate après 5+ utilisations que le critic est "mou" ou rate des angles → splitter en 3 critics distincts (architect-skeptic, pragmatist, execution-simulator) et ajouter un synthétiseur séquentiel. Le pattern est documenté pour un upgrade futur.
 
 ### Gestion JSON invalide
 

@@ -1,7 +1,7 @@
 {
   "degraded": false,
   "sources_lues": [
-    "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+    "meta/skills/mode-plan/references/harnais.md",
     "audit-mode-plan/web_results.json"
   ],
   "avertissements": [],
@@ -10,61 +10,61 @@
     {
       "claim": "H1 — Signal de succès : existe-t-il un golden set + des assertions (idéalement binaires) qui disent si une sortie est bonne, rejouables à chaque changement ? (`spec_produit.md`)",
       "source": "harnais.md §Checklist H1",
-      "url": "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+      "url": "meta/skills/mode-plan/references/harnais.md",
       "id": "F-001"
     },
     {
       "claim": "H2 — Vérification (fiable ET non-gamable) : la couche qui vérifie est-elle distincte de celle qui génère ? Vérifieur cheap quand la sortie n'est pas trivialement checkable ? Et surtout : le grader est-il **résistant au gaming** (essai isolé, pas de fuite des réponses attendues) ? Un signal de succès qu'on peut satisfaire sans faire le travail est pire que pas de signal. (`archi.md`, `spec_produit.md`)",
       "source": "harnais.md §Checklist H2",
-      "url": "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+      "url": "meta/skills/mode-plan/references/harnais.md",
       "id": "F-002"
     },
     {
       "claim": "H3 — Contexte : y a-t-il une stratégie explicite de budget de contexte (JIT, compaction, note-taking) plutôt que « tout charger » ? (`archi.md`)",
       "source": "harnais.md §Checklist H3",
-      "url": "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+      "url": "meta/skills/mode-plan/references/harnais.md",
       "id": "F-003"
     },
     {
       "claim": "H4 — Mémoire/état : comment l'état survit-il entre sessions/fenêtres ? Checkpoints + reprise après erreur ? (`archi.md` + `sessions_claude_code.md`)",
       "source": "harnais.md §Checklist H4",
-      "url": "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+      "url": "meta/skills/mode-plan/references/harnais.md",
       "id": "F-004"
     },
     {
       "claim": "H4b — Auto-amélioration (si type=skill) : le plan prévoit-il la boucle — signal rejouable + mémoire (interactions/issues/proposed_fixes) + moteur `skill-auto-improver` (commit/revert) + déclencheur planifié + garde-fou anti-gaming ? Absente pour un skill → **MAJEUR**. (`spec_produit.md` §11)",
       "source": "harnais.md §Checklist H4b",
-      "url": "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+      "url": "meta/skills/mode-plan/references/harnais.md",
       "id": "F-005"
     },
     {
       "claim": "H5 — Observabilité : peut-on savoir *pourquoi* un run a échoué (traces/artefacts), pas seulement *qu'il* a échoué ? (`archi.md`)",
       "source": "harnais.md §Checklist H5",
-      "url": "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+      "url": "meta/skills/mode-plan/references/harnais.md",
       "id": "F-006"
     },
     {
       "claim": "H6 — Garde-fous : budgets, timeouts, caps, HITL/sandbox sont-ils définis ? (`archi.md`)",
       "source": "harnais.md §Checklist H6",
-      "url": "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+      "url": "meta/skills/mode-plan/references/harnais.md",
       "id": "F-007"
     },
     {
       "claim": "H7 — Outils : set minimal, non-redondant, erreurs actionnables ? Chargement différé / exécution par code si gros jeu d'outils ? (`archi.md`)",
       "source": "harnais.md §Checklist H7",
-      "url": "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+      "url": "meta/skills/mode-plan/references/harnais.md",
       "id": "F-008"
     },
     {
       "claim": "H8 — Justification du fan-out : chaque multi-agent passe-t-il le test empirique (vs 1 appel fort) ? Les écritures sont-elles single-threaded ? Sinon, le simplifier. (`archi.md` §4)",
       "source": "harnais.md §Checklist H8",
-      "url": "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+      "url": "meta/skills/mode-plan/references/harnais.md",
       "id": "F-009"
     },
     {
       "claim": "H9 — Limites LLM spécifiques au domaine : le plan nomme-t-il ce que le modèle ne sait PAS faire de façon fiable *pour cette tâche précise* (au-delà des limites génériques H1–H8), chaque limite **classée** (contournable-ingénierie / structurel-IA-seule / irréductible), **contournée**, et **prouvée par un cas golden** ? Alimenté par `diagnostic-plafonds`. Absent pour un skill/agent non trivial → **MAJEUR**. (`spec_produit.md` §12bis)",
       "source": "harnais.md §Checklist H9",
-      "url": "<HOME>/dev/<depot-prive>/meta/skills/mode-plan/references/harnais.md",
+      "url": "meta/skills/mode-plan/references/harnais.md",
       "id": "F-010"
     },
     {
