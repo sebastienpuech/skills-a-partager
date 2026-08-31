@@ -3,11 +3,11 @@ name: mode-plan
 description: Force la production d'un plan rigoureux en 4 fichiers markdown (spec_produit, archi, data_model, sessions_claude_code) pour tout projet complexe (app, software, skill multi-agent, doc structuré), avec Debate Room adversariale (4 critics parallèles + Défenseur + Juge) et génération de prompts Claude Code self-contained. Utiliser dès que l'utilisateur veut démarrer un nouveau projet complexe, faire un plan d'attaque, planifier un développement multi-sessions, structurer une refonte avant d'implémenter, méthode Cherny, mode plan, plan rigoureux, fais-moi un plan, on planifie d'abord, avant de coder, comme pour le projet Coach, les 4 fichiers. Le skill produit le plan, le challenge, et génère les prompts CC — il ne code rien. Le plan intègre une couche harnais (golden set/signal de succès, vérification, garde-fous, observabilité, mémoire). NE PAS utiliser pour projet simple (≤3 sessions anticipées, pas de golden set), itération sur un projet en cours, ou exécution effective des sessions.
 ---
 
-# Mode Plan v4.3 — Plan rigoureux Harnais-Aware (Debate Room + Refinement Loop + Méta-cognitif)
+# Mode Plan v4.4 — Plan rigoureux Harnais-Aware (Debate Room + Refinement Loop + Méta-cognitif)
 
 Ce skill produit un plan en 4 fichiers markdown pour un projet complexe, le fait challenger par une **Debate Room** (4 critics parallèles + Défenseur + Juge), patche les trous **confirmés** (faux négatifs éliminés), et génère les prompts Claude Code de chaque session. **Le skill ne code rien.** Il s'arrête au handoff CC.
 
-Historique de versions (v1.0 → v4.3) et exemple vivant (projet Coach) : `references/notes-et-historique.md` — le changelog y était déjà, en plus détaillé.
+Historique de versions (v1.0 → v4.4) et exemple vivant (projet Coach) : `references/notes-et-historique.md` — le changelog y était déjà, en plus détaillé.
 
 ---
 
@@ -183,6 +183,28 @@ Lire `references/templates/app/` (seul type templaté en v3). 4 fichiers à prod
 - **Sélection** : `python3 scripts/best_of_n.py --select <ce_dossier>` → candidat au plus haut score rubrique ; l'agent principal écrit CE candidat dans `spec_produit.md` §10bis.
 - **Coût** : **N=2 seulement**, surcoût ≈ **×2 sur cette seule étape** (pas sur le run). Désactivable au cas par cas par `--bestofn=off` — une dérogation se déclare, elle ne se subit pas.
 - **Pourquoi ce changement** : la gate disait « activer » depuis le plan v4, le câblage était resté opt-in, donc l'adoption réelle était **nulle**. Repéré par `meta/adoption/` le 2026-07-27. Une capacité mesurée qu'on n'active pas est une mesure jetée.
+
+### Étape 2.4ter — Condition d'arrêt globale + décisions figées + régime des surprises (v4.4, OBLIGATOIRE)
+
+Trois sections que TOUT plan porte, quel que soit le type :
+1. **Condition d'arrêt globale** (`spec_produit.md` §10ter) : recette d'acceptation
+   gelée sur cas RÉELS, extérieure au code — verte = plan clos. Les jalons de session
+   restent binaires et locaux ; c'est la recette qui dit « fini », pas le dernier jalon.
+2. **Décisions figées** (`spec_produit.md` §9) : toute question prévisible = une ligne
+   tranchée, validée en une seule gate (G1) avant la Session 1. Zéro « À trancher »
+   résiduel à la livraison, zéro question en vol pendant l'exécution.
+3. **Régime des surprises** (`sessions_claude_code.md`, section GATES) : découverte hors
+   objectif → une ligne de `TROUVAILLES.md`, jamais une réouverture ni un plan concurrent.
+
+La gate `--arret=on` (C16) bloque la livraison si l'une des trois manque.
+
+> Incident fondateur (chantier pro, 30/08/2026) : 7 plans successifs définissaient des jalons
+> locaux binaires — tous atteints — mais aucun état final global. La seule condition
+> d'arrêt écrite est devenue invérifiable en route ; chaque chantier clos a été suivi
+> sous 24-48 h d'un nouveau plan ouvrant une classe de défaut non couverte
+> (un dépôt pro, audit interne du 30/08/2026,
+> §4). Le correctif qui a arrêté la boucle : un plan d'atterrissage du 30/08/2026 —
+> le modèle de ces trois sections.
 
 ### Étape 2.5 — Si type=skill : section Mémoire obligatoire
 
@@ -418,6 +440,10 @@ Effet : Claude Code charge `CLAUDE.md` automatiquement à chaque session → con
 
 **Toujours** (utile dès qu'un plan est multi-sessions). Générer `outputs/<nom_projet>/journal.md` selon le schéma `data_model.md §4` : un bloc **« État actuel »** glissant réécrit en tête (phase, sessions faites/N, dernier score Debate Room, prochain pas) + un **Log append-only daté** (une entrée par événement : prévu / réalisé / divergence). Ajouter un **pointeur vers `journal.md`** dans le `CLAUDE.md` (section « Plan — à lire »). C'est la mémoire de suivi qui survit aux resets (context-reset over compaction, cf. `references/harnais.md` §avril 2026) : on rejoue l'état depuis le journal, on ne le résume pas.
 
+**(v4.4)** Générer aussi `outputs/<nom_projet>/TROUVAILLES.md` (en-tête + format d'une
+ligne : constat, fichier:ligne, gravité estimée) — le réceptacle du régime des surprises
+(étape 2.4ter). Le pointer aussi depuis le `CLAUDE.md` généré.
+
 ### Étape 4.4 — Session CC dédiée à la boucle d'auto-amélioration (si type=skill)
 
 Si type=skill et mémoire ≠ aucune, insérer (Session 2 ou 3) une session dédiée qui câble la **boucle d'auto-amélioration** (cf. `spec_produit.md` §11 + `references/harnais.md`) :
@@ -442,7 +468,9 @@ python3 scripts/self_diagnosis.py outputs/<nom_projet>/ \
     --autoimprove=on \
     --handoff=on \
     --selfeval=on \
-    --llmlimits=on \n    --delivery=on
+    --llmlimits=on \
+    --delivery=on \
+    --arret=on
 ```
 
 Le script check (binairement, 0 token) :
@@ -460,6 +488,7 @@ Le script check (binairement, 0 token) :
 - C12 (v3.6, si `--handoff=on`) : le dossier du plan contient un `CLAUDE.md` (ou `AGENTS.md`) — le handoff repo-resident généré en 4.3bis. Off par défaut → evals inchangées.
 - C13 (v4.0, si `--selfeval=on`) : le self-golden-set du skill existe et tourne (`self_eval_debate.py --replay`) ET le grader-of-graders (`_meta_eval.py`) passe. Porte sur le skill lui-même. Off par défaut → evals inchangées.
 - C14 (v4.1, si `--llmlimits=on` ET type=skill/agent) : `spec_produit.md` a une section « Limites LLM pour ce skill » (§12bis) avec au moins une limite LMx nommée (H9). Off par défaut → evals inchangées.
+- C16 (v4.4, si `--arret=on`) : `spec_produit.md` porte une condition d'arrêt globale (§10ter, recette d'acceptation) ET zéro décision restée « À trancher » (§9) ET `sessions_claude_code.md` porte le régime des surprises (TROUVAILLES). Off par défaut → evals inchangées.
 
 Si `status: FAIL` → ne PAS livrer, reprendre les étapes correspondantes et relancer.
 
@@ -523,6 +552,7 @@ Présenter à l'user :
 - **(v3.5) Confondre « auto-amélioration du livrable » et « auto-amélioration de mode-plan »** → mode-plan ne se réécrit JAMAIS en cours de run (cf. règle de consolidation). L'auto-amélioration de mode-plan lui-même = job de `skill-auto-improver`, séparément, la nuit, nourri par l'Observateur → `_mode-plan-meta/issues.md`.
 - **(v3.6) Coller le plan dans Claude Code comme un prompt jetable** → contexte éphémère, perdu au reset. Le plan vit DANS le repo (`CLAUDE.md` à la racine + les 4 fichiers), Claude Code le relit à chaque session. mode-plan génère le `CLAUDE.md` (4.3bis) ; la gate `--handoff=on` (C12) bloque si absent.
 - **(v3.3) Garder un fan-out multi-agent sans le passer au test empirique** → si remplacer N agents par 1 appel d'un bon modèle ne baisse pas le score golden, l'orchestration est une taxe. Le `critic-harnais` (H8) doit le challenger. Inverse aussi vrai : ne pas sur-harnacher un projet jetable.
+- **(v4.4) Clore un chantier local et croire le projet fini** → sans condition d'arrêt globale, chaque jalon vert rouvre un plan sous 24-48 h (incident sur un chantier pro, 30/08/2026 : 7 plans successifs, tous jalons atteints, aucun état final). La fin d'un plan = recette d'acceptation verte (§10ter), jamais le dernier jalon local. Gate `--arret=on` (C16).
 
 ---
 

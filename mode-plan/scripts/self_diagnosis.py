@@ -411,8 +411,55 @@ def check_delivery_gate(project_dir):
     return []
 
 
+def check_c16_arret_global(project_dir):
+    """C16 (v4.4, gated by --arret=on): le plan porte une condition d'arrêt GLOBALE
+    (recette d'acceptation gelée sur cas réels, §10ter), zéro décision restée
+    « À trancher » (§9), et le régime des surprises (TROUVAILLES) dans
+    sessions_claude_code.md.
+
+    Incident fondateur : chantier pro, 30/08/2026 — 7 plans successifs à jalons locaux
+    binaires tous atteints, aucun état final global ; chaque chantier clos rouvert
+    sous 24-48 h. Cf. SKILL.md étape 2.4ter.
+    """
+    fails = []
+    spec = project_dir / "spec_produit.md"
+    if spec.is_file():
+        c = spec.read_text(encoding="utf-8").lower()
+        has_arret = (
+            "recette d'acceptation" in c
+            or "recette d’acceptation" in c
+            or "condition d'arrêt" in c
+            or "condition d'arret" in c
+            or "condition d’arr" in c
+            or "10ter" in c
+        )
+        if not has_arret:
+            fails.append(
+                "C16: spec_produit.md n'a pas de condition d'arrêt globale "
+                "(§10ter : recette d'acceptation gelée sur cas réels — "
+                "verte = plan clos)."
+            )
+        if re.search(r"\|\s*à trancher\s*\|", c):
+            fails.append(
+                "C16: spec_produit.md garde des décisions « À trancher » (§9) — "
+                "toutes doivent être FIGÉES avant livraison (gate G1, une seule "
+                "validation en bloc, zéro question en vol)."
+            )
+    sessions = project_dir / SESSIONS_FILE
+    if sessions.is_file():
+        c = sessions.read_text(encoding="utf-8").lower()
+        if "trouvailles" not in c:
+            fails.append(
+                "C16: sessions_claude_code.md n'a pas de régime des surprises "
+                "(TROUVAILLES.md : une découverte hors objectif = une ligne, "
+                "jamais une réouverture du plan ni un plan concurrent)."
+            )
+    return fails
+
+
 def run_all_checks(project_dir, type_, memory, harness="off", autoimprove="off",
-                   handoff="off", selfeval="off", llmlimits="off", delivery="off"):
+                   handoff="off", selfeval="off", llmlimits="off", delivery="off",
+                   arret="off"):
     """Run all circuit-breakers, return structured report."""
     all_fails = []
     all_fails.extend(check_files_exist(project_dir))
@@ -460,6 +507,11 @@ def run_all_checks(project_dir, type_, memory, harness="off", autoimprove="off",
         checks_run += 1
     else:
         checks_skipped.append("C15 (--delivery=off)")
+    if arret == "on":
+        all_fails.extend(check_c16_arret_global(project_dir))
+        checks_run += 1
+    else:
+        checks_skipped.append("C16 (--arret=off)")
 
     return {
         "project": str(project_dir),
@@ -501,6 +553,11 @@ def main():
         "--delivery", choices=["on", "off"], default="off",
         help="v4.2: gate de livraison C15 — .mode-plan/ livré + bannière si major_revision"
     )
+    ap.add_argument(
+        "--arret", choices=["on", "off"], default="off",
+        help="v4.4: gate C16 — condition d'arrêt globale (§10ter) + décisions figées "
+             "(§9 sans 'À trancher') + régime des surprises (TROUVAILLES)"
+    )
     args = ap.parse_args()
 
     if not args.project_dir.is_dir():
@@ -509,7 +566,7 @@ def main():
 
     report = run_all_checks(args.project_dir, args.type, args.memory, args.harness,
                             args.autoimprove, args.handoff, args.selfeval, args.llmlimits,
-                            args.delivery)
+                            args.delivery, args.arret)
     print(json.dumps(report, indent=2, ensure_ascii=False))
     return 0 if report["status"] == "PASS" else 1
 

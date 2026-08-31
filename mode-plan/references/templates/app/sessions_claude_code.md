@@ -87,6 +87,26 @@ Le fix rétroactif (un commit global v1.1) a sauvé la situation mais le risque 
 
 ---
 
+## 🧭 GATES & RÉGIME DES SURPRISES (v4.4)
+
+**Les seuls moments où l'utilisateur intervient :**
+- **G1 — avant la Session 1** : valider EN BLOC la table des décisions figées
+  (`spec_produit.md` §9) et la recette d'acceptation (§10ter). Un seul « oui ».
+- **G2 — fin de la dernière session** : constater la recette verte → plan CLOS.
+
+Entre G1 et G2 : **zéro question en vol.** Une session qui rencontre une question
+prévue applique la décision figée et cite son numéro.
+
+**Régime des surprises** (toute découverte hors objectif, pendant l'exécution) :
+- → **une ligne dans `TROUVAILLES.md`** (constat, fichier:ligne, gravité estimée),
+  et la session CONTINUE. Jamais une réouverture du plan, jamais un plan concurrent.
+- Décision imprévue non couverte par la table → le choix le plus PETIT qui préserve
+  l'objectif final, loggé « défaut appliqué : X » dans le journal.
+- Après clôture (recette verte) : toute erreur remontée = ticket, le plan ne se
+  rouvre pas.
+
+---
+
 ## 1. Comment marche Claude Code (rappel rapide)
 
 Claude Code est un terminal interactif. Tu lances `claude` dans le dossier projet, tu colles le prompt d'ouverture, tu suis le dialogue, tu testes, tu commits, tu fermes la session.

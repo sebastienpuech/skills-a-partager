@@ -127,12 +127,18 @@ Format de chaque scénario :
 [diagramme texte simple des composants principaux et de leurs flux]
 ```
 
-## 9. Décisions à trancher
+## 9. Décisions figées — validées en bloc AVANT la première session (gate G1)
 
-| Décision | Options | Status |
-|----------|---------|--------|
-| [décision 1] | [option A / option B] | À trancher |
-| [décision 2] | [...] | À trancher |
+> Une question prévisible = une ligne de cette table, tranchée AVANT l'exécution.
+> À la livraison du plan : zéro ligne « À trancher ». Une session qui rencontre une
+> de ces questions applique la décision et cite son numéro (« D3 »). Une question
+> absente de la table → régime des surprises (sessions_claude_code.md), jamais une
+> question posée en vol.
+
+| # | Question | Décision figée |
+|---|----------|----------------|
+| D1 | [question prévisible 1] | [décision + sa raison en 1 ligne] |
+| D2 | [question prévisible 2] | [décision] |
 
 ## 10. Critères de succès
 
@@ -166,6 +172,29 @@ Comment on saura que le produit est bon :
 **Vérifieur vs générateur** : la couche qui vérifie est **distincte** de celle qui génère. Un vérifieur cheap et fiable permet un générateur plus simple (couche la plus rentable du harnais). Le grader doit être **non-gamable** : essai en environnement propre, pas de fuite des réponses attendues, check qu'on ne peut pas satisfaire trivialement (optimiser contre une cible vérifiable invite au reward-hacking).
 
 **Prudence LLM-as-judge** : utile, mais à **ancrer sur des cas réels** — les utilisateurs/juges 100% simulés par LLM sont des proxies non fiables (*Lost in Simulation*). Golden set réel > juge LLM seul.
+
+## 10ter. Condition d'arrêt globale — la recette d'acceptation (v4.4)
+
+> Le §10 dit si le produit est BON ; cette section dit quand le plan est FINI.
+> Sans elle, chaque jalon local atteint rouvre un chantier (incident sur un chantier pro, 30/08/2026,
+> cf. SKILL.md étape 2.4ter).
+
+**Recette d'acceptation** : [N] cas RÉELS gelés (nommés ici, copies de travail jamais
+modifiées), avec par cas des exigences vérifiables sans opinion. **Recette verte =
+plan CLOS.**
+
+| Cas gelé (réel, nommé) | Exigences vérifiables |
+|------------------------|----------------------|
+| [cas 1 — fichier/base/scénario réel] | [exigence binaire 1 ; exigence 2] |
+
+Règles :
+- **Extérieure au code** : la recette se vérifie sur les cas gelés, pas sur les tests
+  du repo. Le golden set (§10bis) mesure la progression PENDANT le dev ; la recette
+  est la ligne d'arrivée, gelée à la validation du plan.
+- **Elle survit aux découvertes** : aucune trouvaille en cours de route ne la modifie.
+  Si elle devient invérifiable (métrique perdue, cas disparu), on la REMPLACE
+  explicitement via une gate utilisateur nommée — jamais de dérive silencieuse.
+- Après clôture : toute surprise = ticket du régime pilote, jamais une réouverture.
 
 ## 11. Boucle d'auto-amélioration (si type=skill)
 
