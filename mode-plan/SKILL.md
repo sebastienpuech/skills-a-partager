@@ -3,11 +3,11 @@ name: mode-plan
 description: Force la production d'un plan rigoureux en 4 fichiers markdown (spec_produit, archi, data_model, sessions_claude_code) pour tout projet complexe (app, software, skill multi-agent, doc structuré), avec Debate Room adversariale (4 critics parallèles + Défenseur + Juge) et génération de prompts Claude Code self-contained. Utiliser dès que l'utilisateur veut démarrer un nouveau projet complexe, faire un plan d'attaque, planifier un développement multi-sessions, structurer une refonte avant d'implémenter, méthode Cherny, mode plan, plan rigoureux, fais-moi un plan, on planifie d'abord, avant de coder, comme pour le projet Coach, les 4 fichiers. Le skill produit le plan, le challenge, et génère les prompts CC — il ne code rien. Le plan intègre une couche harnais (golden set/signal de succès, vérification, garde-fous, observabilité, mémoire). NE PAS utiliser pour projet simple (≤3 sessions anticipées, pas de golden set), itération sur un projet en cours, ou exécution effective des sessions.
 ---
 
-# Mode Plan v4.4 — Plan rigoureux Harnais-Aware (Debate Room + Refinement Loop + Méta-cognitif)
+# Mode Plan v4.5 — Plan rigoureux Harnais-Aware (Debate Room + Refinement Loop + Méta-cognitif)
 
 Ce skill produit un plan en 4 fichiers markdown pour un projet complexe, le fait challenger par une **Debate Room** (4 critics parallèles + Défenseur + Juge), patche les trous **confirmés** (faux négatifs éliminés), et génère les prompts Claude Code de chaque session. **Le skill ne code rien.** Il s'arrête au handoff CC.
 
-Historique de versions (v1.0 → v4.4) et exemple vivant (projet Coach) : `references/notes-et-historique.md` — le changelog y était déjà, en plus détaillé.
+Historique de versions (v1.0 → v4.5) et exemple vivant (projet Coach) : `references/notes-et-historique.md` — le changelog y était déjà, en plus détaillé.
 
 ---
 
@@ -133,6 +133,10 @@ round 2 : il se redrafte.
 
 ## Phase 2 — Draft du plan (avec injection de patterns)
 
+### Étape 2.0 — Lire l'index des leçons (v4.5, OBLIGATOIRE)
+
+Lancer `python ~/dev/claude-config/lecons_index.py` (repli s'il n'existe pas encore : lister les `titre:` du frontmatter de `~/dev/*/lecons/*.md` et `~/<autre-depot-perso>/lecons/*.md`). La liste des TITRES entre dans la Debate Room comme entrée de chaque critic : il dit lesquelles s'appliquent à ce plan et où, ou écrit « aucune ». Une leçon applicable non prise en compte est une critique CRITIQUE. Titres seulement : le contenu des fiches n'est jamais recopié dans le plan.
+
 ### Étape 2.0bis — Diagnostic des plafonds du domaine (v4.1, si type=skill/agent ET ambition ≥ robuste)
 
 Avant de drafter, lancer `diagnostic-plafonds` sur le domaine + les techniques prévues du skill. Le résultat remplit `spec_produit.md` §12bis (Limites LLM pour ce skill) : pour chaque limite → **classer** (contournable-ingénierie / structurel-IA-seule / irréductible), décider du **contournement**, et **écrire le cas golden §10bis en même temps**. Une limite « structurel-IA-seule » sans contournement connu → candidate à `labo-recherche` (phase L3). Sur app jetable : sauter. La gate `--llmlimits=on` (C14) bloque la livraison si §12bis manque pour un skill/agent.
@@ -190,13 +194,20 @@ Trois sections que TOUT plan porte, quel que soit le type :
 1. **Condition d'arrêt globale** (`spec_produit.md` §10ter) : recette d'acceptation
    gelée sur cas RÉELS, extérieure au code — verte = plan clos. Les jalons de session
    restent binaires et locaux ; c'est la recette qui dit « fini », pas le dernier jalon.
+   (v4.5) La recette NOMME son lecteur : le propriétaire, ou un relecteur hors de la
+   session qui produit — un « vert » déclaré par le producteur est une précondition,
+   pas une clôture — et sa cadence : après chaque lot livré, pas à la fin du plan.
+   « Cas réels » veut dire représentatifs : les formats d'entrée du terrain sont LISTÉS
+   dans la recette et chacun a au moins un cas ; un vert sur des cas d'un seul format ne
+   prouve rien sur les autres (incident sur un chantier pro, 30/08/2026 : 66 tests verts, 1 question sur
+   134 lue sur la première base d'un autre format).
 2. **Décisions figées** (`spec_produit.md` §9) : toute question prévisible = une ligne
    tranchée, validée en une seule gate (G1) avant la Session 1. Zéro « À trancher »
    résiduel à la livraison, zéro question en vol pendant l'exécution.
 3. **Régime des surprises** (`sessions_claude_code.md`, section GATES) : découverte hors
    objectif → une ligne de `TROUVAILLES.md`, jamais une réouverture ni un plan concurrent.
 
-La gate `--arret=on` (C16) bloque la livraison si l'une des trois manque.
+La gate `--arret=on` (C16) bloque la livraison si l'une des trois manque — ou, depuis la v4.5, si la recette ne nomme pas son lecteur ou ne liste pas ses formats.
 
 > Incident fondateur (chantier pro, 30/08/2026) : 7 plans successifs définissaient des jalons
 > locaux binaires — tous atteints — mais aucun état final global. La seule condition
@@ -488,7 +499,7 @@ Le script check (binairement, 0 token) :
 - C12 (v3.6, si `--handoff=on`) : le dossier du plan contient un `CLAUDE.md` (ou `AGENTS.md`) — le handoff repo-resident généré en 4.3bis. Off par défaut → evals inchangées.
 - C13 (v4.0, si `--selfeval=on`) : le self-golden-set du skill existe et tourne (`self_eval_debate.py --replay`) ET le grader-of-graders (`_meta_eval.py`) passe. Porte sur le skill lui-même. Off par défaut → evals inchangées.
 - C14 (v4.1, si `--llmlimits=on` ET type=skill/agent) : `spec_produit.md` a une section « Limites LLM pour ce skill » (§12bis) avec au moins une limite LMx nommée (H9). Off par défaut → evals inchangées.
-- C16 (v4.4, si `--arret=on`) : `spec_produit.md` porte une condition d'arrêt globale (§10ter, recette d'acceptation) ET zéro décision restée « À trancher » (§9) ET `sessions_claude_code.md` porte le régime des surprises (TROUVAILLES). Off par défaut → evals inchangées.
+- C16 (v4.4, si `--arret=on`) : `spec_produit.md` porte une condition d'arrêt globale (§10ter, recette d'acceptation) ET zéro décision restée « À trancher » (§9) ET `sessions_claude_code.md` porte le régime des surprises (TROUVAILLES). (v4.5) La section recette nomme en plus un LECTEUR hors de la session productrice ET liste les FORMATS d'entrée couverts — l'un des deux absent bloque la livraison comme une section manquante. Off par défaut → evals inchangées.
 
 Si `status: FAIL` → ne PAS livrer, reprendre les étapes correspondantes et relancer.
 
@@ -553,6 +564,7 @@ Présenter à l'user :
 - **(v3.6) Coller le plan dans Claude Code comme un prompt jetable** → contexte éphémère, perdu au reset. Le plan vit DANS le repo (`CLAUDE.md` à la racine + les 4 fichiers), Claude Code le relit à chaque session. mode-plan génère le `CLAUDE.md` (4.3bis) ; la gate `--handoff=on` (C12) bloque si absent.
 - **(v3.3) Garder un fan-out multi-agent sans le passer au test empirique** → si remplacer N agents par 1 appel d'un bon modèle ne baisse pas le score golden, l'orchestration est une taxe. Le `critic-harnais` (H8) doit le challenger. Inverse aussi vrai : ne pas sur-harnacher un projet jetable.
 - **(v4.4) Clore un chantier local et croire le projet fini** → sans condition d'arrêt globale, chaque jalon vert rouvre un plan sous 24-48 h (incident sur un chantier pro, 30/08/2026 : 7 plans successifs, tous jalons atteints, aucun état final). La fin d'un plan = recette d'acceptation verte (§10ter), jamais le dernier jalon local. Gate `--arret=on` (C16).
+- **(v4.5) Répondre à une remarque du propriétaire par une architecture** → une remarque devient un cas de recette sur le livrable (« la page doit porter ceci, sinon rouge ») ; « un agent » veut dire un agent ; aucune architecture nouvelle après la clôture d'un plan, toute addition passe par le régime des surprises (incident sur un chantier pro, 03/09/2026 : quatre passes sous-agent, jours 5 à 7 sur 7, jamais tournées de bout en bout au 04/09).
 
 ---
 

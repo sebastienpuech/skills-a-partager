@@ -411,6 +411,18 @@ def check_delivery_gate(project_dir):
     return []
 
 
+def _section_recette(c):
+    """(v4.5) Texte de la section recette (§10ter) d'un spec_produit.md déjà en
+    minuscules : du titre qui la porte jusqu'au prochain titre de niveau 2. Repli :
+    depuis la première mention si aucun titre ne la nomme."""
+    marq = r"10ter|recette d[’']acceptation|condition d[’']arr"
+    m = re.search(r"\n##+ [^\n]*(?:" + marq + ")", c) or re.search(marq, c)
+    if not m:
+        return ""
+    nxt = re.search(r"\n## ", c[m.end():])
+    return c[m.start():m.end() + nxt.start()] if nxt else c[m.start():]
+
+
 def check_c16_arret_global(project_dir):
     """C16 (v4.4, gated by --arret=on): le plan porte une condition d'arrêt GLOBALE
     (recette d'acceptation gelée sur cas réels, §10ter), zéro décision restée
@@ -420,6 +432,10 @@ def check_c16_arret_global(project_dir):
     Incident fondateur : chantier pro, 30/08/2026 — 7 plans successifs à jalons locaux
     binaires tous atteints, aucun état final global ; chaque chantier clos rouvert
     sous 24-48 h. Cf. SKILL.md étape 2.4ter.
+
+    v4.5 : la recette NOMME son lecteur (hors session productrice) et LISTE les
+    formats d'entrée couverts — incident sur un chantier pro, 02-03/09/2026 (vert du producteur
+    démenti par le propriétaire ; 66 tests verts sur un seul format).
     """
     fails = []
     spec = project_dir / "spec_produit.md"
@@ -439,6 +455,20 @@ def check_c16_arret_global(project_dir):
                 "(§10ter : recette d'acceptation gelée sur cas réels — "
                 "verte = plan clos)."
             )
+        else:
+            sect = _section_recette(c)
+            if not re.search(r"\b(?:re)?lecteur\b|\blue? par\b|\brelecture\b", sect):
+                fails.append(
+                    "C16 (v4.5): la recette (§10ter) ne nomme pas son LECTEUR — "
+                    "propriétaire ou relecteur hors de la session productrice ; un "
+                    "vert déclaré par le producteur est une précondition, pas une clôture."
+                )
+            if not re.search(r"\bformats?\b", sect):
+                fails.append(
+                    "C16 (v4.5): la recette (§10ter) ne liste pas les FORMATS d'entrée "
+                    "couverts — un cas gelé par format ; un vert sur un seul format ne "
+                    "prouve rien sur les autres."
+                )
         if re.search(r"\|\s*à trancher\s*\|", c):
             fails.append(
                 "C16: spec_produit.md garde des décisions « À trancher » (§9) — "
@@ -556,7 +586,8 @@ def main():
     ap.add_argument(
         "--arret", choices=["on", "off"], default="off",
         help="v4.4: gate C16 — condition d'arrêt globale (§10ter) + décisions figées "
-             "(§9 sans 'À trancher') + régime des surprises (TROUVAILLES)"
+             "(§9 sans 'À trancher') + régime des surprises (TROUVAILLES) ; "
+             "v4.5: + lecteur nommé et formats d'entrée listés dans la recette"
     )
     args = ap.parse_args()
 
