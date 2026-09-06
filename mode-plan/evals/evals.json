@@ -348,6 +348,35 @@
         }
       },
       "note": "Correctif 2026-08-24 : une citation elidee (« debut […] fin ») s'ancre si tous ses fragments sont presents DANS L'ORDRE. Avant, elle sortait non_ancre et faisait retrograder des verdicts du Juge sur un artefact de format. Le 2e cas (fragment absent) doit rester non ancre."
+    },
+    {
+      "id": "sd_arret_ok_passes",
+      "script": "self_diagnosis.py",
+      "fixture_dir": "fixtures/sd_arret_ok",
+      "args": [
+        "--type=app",
+        "--arret=on"
+      ],
+      "expected": {
+        "exit_code": 0,
+        "json_match": {
+          "status": "PASS",
+          "checks_run": 10
+        }
+      }
+    },
+    {
+      "id": "sd_arret_lecteur_formats_missing_detected",
+      "script": "self_diagnosis.py",
+      "fixture_dir": "fixtures/sd_arret_lecteur_formats_missing",
+      "args": [
+        "--type=app",
+        "--arret=on"
+      ],
+      "expected": {
+        "exit_code": 1,
+        "failure_includes_substring": "C16 (v4.5)"
+      }
     }
   ]
 }

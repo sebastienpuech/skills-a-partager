@@ -570,4 +570,4 @@ Présenter à l'user :
 
 ## Notes, portabilité, limitations & historique
 
-Contenu de référence **jamais nécessaire pendant un run** → déplacé vers **`references/notes-et-historique.md`** (progressive disclosure, v4.1). On y trouve : l'articulation avec `skill-auto-improver`, la portabilité des agents custom (Claude Code ↔ Cowork), les limitations connues, le plan de consolidation anti-bloat, l'**historique de versions** (v1.0 → v4.3), et l'exemple vivant (projet Coach). Consulter à la demande.
+Contenu de référence **jamais nécessaire pendant un run** → déplacé vers **`references/notes-et-historique.md`** (progressive disclosure, v4.1). On y trouve : l'articulation avec `skill-auto-improver`, la portabilité des agents custom (Claude Code ↔ Cowork), les limitations connues, le plan de consolidation anti-bloat, l'**historique de versions** (v1.0 → v4.5), et l'exemple vivant (projet Coach). Consulter à la demande.

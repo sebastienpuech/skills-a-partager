@@ -187,6 +187,12 @@ plan CLOS.**
 |------------------------|----------------------|
 | [cas 1 — fichier/base/scénario réel] | [exigence binaire 1 ; exigence 2] |
 
+**Lecteur de la recette (v4.5)** : [propriétaire, ou relecteur nommé hors de la session
+qui produit — un « vert » déclaré par le producteur est une précondition, pas une clôture].
+**Cadence** : après chaque lot livré, pas à la fin du plan.
+**Formats d'entrée couverts (v4.5)** : [format A → cas 1 ; format B → cas 2 — un cas gelé
+par format rencontré sur le terrain ; un vert sur un seul format ne prouve rien sur les autres].
+
 Règles :
 - **Extérieure au code** : la recette se vérifie sur les cas gelés, pas sur les tests
   du repo. Le golden set (§10bis) mesure la progression PENDANT le dev ; la recette
