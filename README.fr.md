@@ -13,6 +13,23 @@ je conçois, je valide et je mesure. Ce dépôt est privé et partagé sur invit
 | `mode-plan/` | Avant tout projet complexe, force un plan en 4 fichiers (spécification produit, architecture, modèle de données, sessions de travail), le fait attaquer par 4 critiques en parallèle, puis un défenseur et un juge, et génère des consignes de travail autoportantes | `mode-plan/SKILL.md`, puis `mode-plan/docs/plan-v4/journal.md` |
 | `skill-creator-v12/` | Crée, améliore et teste d'autres skills : cadrage, garde-fous, relecture adversariale, évaluations comparées à une version de référence | `skill-creator-v12/SKILL.md` |
 
+## Ce que `mode-plan` a de particulier
+
+Quatre mécanismes, chacun né d'un plan qui a échoué. Aucun n'apparaît dans les skills de
+planification de `superpowers` (`brainstorming`, `writing-plans`, version 6.2.0, vérifié le
+22/09/2026).
+
+| Mécanisme | Ce qu'il fait | Pourquoi il existe | Où |
+|---|---|---|---|
+| **Ancrage du brief** | Avant tout débat, chaque affirmation de fait du brief (« X n'est pas installé », « le fichier n'existe pas ») est vérifiée par une commande, jamais de mémoire | Un run complet (4 critiques × 3 tours, 45 critiques confirmées, 433 k tokens, 57 minutes) a planifié un travail déjà déployé, parce que personne n'avait vérifié les prémisses du brief | `SKILL.md`, étape 1.6 |
+| **Salle de débat adversariale** | 4 critiques en parallèle, puis un défenseur, puis un juge ; la fusion et la convergence sont faites par script, pas par un modèle | Un plan se juge contre ses objections, pas contre l'assurance de son auteur | `SKILL.md`, phase 3 |
+| **Citations vérifiées** | Le défenseur et le juge citent le plan ; un script vérifie que chaque passage cité existe vraiment, sans aucun modèle dans la boucle | Rien ne vérifiait que leurs citations étaient réelles | `SKILL.md`, étape 3.4bis |
+| **Le plan qui finit** | Chaque plan porte une condition d'arrêt globale : une recette d'acceptation gelée sur des cas réels, relue par quelqu'un d'autre que son producteur, plus des décisions figées et une règle pour les surprises | 7 plans successifs ont atteint tous leurs jalons, et le chantier n'a jamais fini | `SKILL.md`, étape 2.4ter |
+
+Le plan final passe aussi 16 contrôles automatiques (C1 à C16, `scripts/self_diagnosis.py`), et le
+skill lit l'index des leçons passées avant d'écrire. Ce sont des différences de conception, pas une
+victoire mesurée : aucune comparaison de la qualité des plans face à un autre outil n'a été faite.
+
 ## Ce qui est mesuré, et où le vérifier
 
 Chaque chiffre renvoie au fichier qui le contient.

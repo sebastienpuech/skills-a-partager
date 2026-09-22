@@ -13,6 +13,22 @@ repository is private and shared by invitation. The skills themselves are writte
 | `mode-plan/` | Before any complex project, forces a plan in 4 files (product spec, architecture, data model, work sessions), has it attacked by 4 critics in parallel, then a defender and a judge, and generates self-contained work prompts | `mode-plan/SKILL.md`, then `mode-plan/docs/plan-v4/journal.md` |
 | `skill-creator-v12/` | Creates, improves and tests other skills: scoping, guardrails, adversarial review, evaluations against a baseline version | `skill-creator-v12/SKILL.md` |
 
+## What is unusual in `mode-plan`
+
+Four mechanisms, each born from a plan that failed. None of them appears in the planning skills
+of `superpowers` (`brainstorming`, `writing-plans`, version 6.2.0, checked on 22 September 2026).
+
+| Mechanism | What it does | Why it exists | Where |
+|---|---|---|---|
+| **Brief anchoring** | Before any debate, every claim of fact in the brief ("X is not installed", "the file does not exist") is checked by a command, never from memory | A full run (4 critics × 3 rounds, 45 confirmed critiques, 433k tokens, 57 minutes) planned work that was already deployed, because nobody checked the brief's premises | `SKILL.md`, step 1.6 |
+| **Adversarial debate room** | 4 critics in parallel, then a defender, then a judge; merging and convergence are done by script, not by a model | A plan is judged against its objections, not against its author's confidence | `SKILL.md`, phase 3 |
+| **Verified citations** | The defender and the judge quote the plan; a script checks that every quoted passage really exists, with no model in the loop | Nothing checked that their quotes were real | `SKILL.md`, step 3.4bis |
+| **The plan that ends** | Every plan carries a global stop condition: an acceptance recipe frozen on real cases, read by someone other than its producer, plus frozen decisions and a rule for surprises | 7 successive plans reached all their milestones, and the project never ended | `SKILL.md`, step 2.4ter |
+
+The final plan also goes through 16 automatic checks (C1 to C16, `scripts/self_diagnosis.py`),
+and the skill reads the index of past lessons before writing. These are design differences, not
+a measured win: no head-to-head comparison of plan quality against another tool has been run.
+
 ## What is measured, and where to check it
 
 Every number points to the file that contains it.
