@@ -30,7 +30,18 @@ Every number points to the file that contains it.
   not hidden.
 - **The evaluation cases are published with their verdicts**, rejected plans included
   (`mode-plan/evals/ensemble/`).
+- **An option that did not earn its place was rejected, and the rejection kept.** An ensemble of
+  verifiers, tried on 29 July 2026 on 8 live cases: 0.875 without, 0.875 with, a gain of zero
+  against a threshold of 0.03. Rejected by a human decision, switched off.
 - **`skill-creator-v12`**: 29 tests on its scripts (`skill-creator-v12/tests/test_scripts.py`).
+
+## What does not work
+
+`mode-plan` has a weekly self-improvement loop. It runs, logs, and has never improved anything:
+11 passes from 2 July to 20 September 2026, none of them committed a change, and its capability
+score has stayed frozen at 0.6667 since 28 July. It works as a weekly health check; as an
+improvement engine, it has not delivered. That log is part of my private working files and is
+not included in this copy.
 
 ## What this copy is not
 

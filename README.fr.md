@@ -30,7 +30,18 @@ Chaque chiffre renvoie au fichier qui le contient.
   plus : il est écrit, pas caché.
 - **Les cas d'évaluation sont publiés avec leurs verdicts**, y compris les plans rejetés
   (`mode-plan/evals/ensemble/`).
+- **Une option qui n'a pas fait ses preuves a été rejetée, et le rejet conservé.** Un ensemble de
+  vérificateurs, essayé le 29/07/2026 sur 8 cas réels : 0,875 sans, 0,875 avec, soit un gain nul
+  pour un seuil de 0,03. Rejeté sur décision humaine, désactivé.
 - **`skill-creator-v12`** : 29 tests sur ses scripts (`skill-creator-v12/tests/test_scripts.py`).
+
+## Ce qui ne marche pas
+
+`mode-plan` a une boucle d'auto-amélioration hebdomadaire. Elle tourne, elle journalise, et elle
+n'a jamais rien amélioré : 11 passes du 02/07 au 20/09/2026, aucune n'a validé de modification, et
+son score de capacité est figé à 0,6667 depuis le 28/07. Elle fait office de veille hebdomadaire ;
+comme moteur d'amélioration, elle n'a rien livré. Ce journal fait partie de mes fichiers de
+travail privés et n'est pas inclus dans cette copie.
 
 ## Ce que cette copie n'est pas
 
